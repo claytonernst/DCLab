@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svnroot/collab-sci/!svn/ver/65/DClabV2/+DClab/@DCContainer
+END
+gui.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/65/DClabV2/+DClab/@DCContainer/gui.m
+END
+gui0.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCContainer/gui0.m
+END
+adjustDomains.m
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCContainer/adjustDomains.m
+END
+gui1.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCContainer/gui1.m
+END
+DCContainer.m
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svnroot/collab-sci/!svn/ver/63/DClabV2/+DClab/@DCContainer/DCContainer.m
+END
+isvalid.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCContainer/isvalid.m
+END
+DCDataset.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCContainer/DCDataset.m
+END
+adjustUnc.m
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCContainer/adjustUnc.m
+END

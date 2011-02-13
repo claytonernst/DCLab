@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/7/DClabV2/+DClab/@PolyDataset
+END
+subdivideDomain.m
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/subdivideDomain.m
+END
+evalSurrogateModels.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/evalSurrogateModels.m
+END
+olbFitX.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/olbFitX.m
+END
+optim1norm_nqcqp.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/optim1norm_nqcqp.m
+END
+optim2norm_nqcqp.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/optim2norm_nqcqp.m
+END
+PolyDataset.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/collab-sci/!svn/ver/7/DClabV2/+DClab/@PolyDataset/PolyDataset.m
+END
+findStartPtOptim.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/findStartPtOptim.m
+END
+ilbFitX.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/ilbFitX.m
+END
+optimInfnorm_nqcqp.m
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@PolyDataset/optimInfnorm_nqcqp.m
+END

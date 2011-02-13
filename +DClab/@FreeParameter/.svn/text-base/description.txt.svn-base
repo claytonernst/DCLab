@@ -1,0 +1,67 @@
+A scalar object is considered empty unless it has either
+a name or one of the left or right bounds
+A vector object is considered empty if all of its components are
+
+Call an object defective if it has some, but not all of this
+information. How could a user make a defective object?
+
+a) he could set the name to '' (an empty string)
+b) he could set one of the bounds to [] (an empty double)
+c) he could start with an empty object called from the constructor,
+and use SET to fill it out. 
+
+I would like to disallow the first two, but the third will
+happen. Thus, let's allow everything. We will proceed by placing
+another field in the object. It will be -1 for empty, 0 for defective,
+and 1 for functional. Name the field "complete".
+
+complete will not even be setPrivateable.
+
+How does this affect things? 
+
+%---length---
+%this will return the number of complete and defective elements in the
+%object
+%
+%---size---
+%this will be lengthx1 if object is
+
+---size---
+size will not be overloaded
+
+---length---
+length will not be overloaded
+
+---nParam---
+this will return the number of complete objects
+
+---status---
+this will return a column of the values of the .complete fields
+
+---display--- 
+this should be a bit more informative than it currently
+is---indicating if any are incomplete.
+
+---vertcat---
+vertcat will error if defective objects are included in the input
+list. This is to prevent any ambiguity if say two elements have the
+same name, but one is missing bounds. It is also necessary because
+elements are bookkeeped by name, which may not be present in the
+defective case.
+
+vertcat will not even warn if any empties are included in the input
+list, all will be eliminated from the output, except in the case in
+which all are empty, which results in an empty output. This is
+standard MATLAB behavior
+
+When will we not eliminate the duplicates? Remember, this object
+isn't even valid if there are duplicate names! 
+
+ParameterAssertion(n) will preallocate an nx1 object
+
+I don't like how the assignment PA(1) = [] works. What is Trent doing?
+It needs to be a special case in subsasgn
+
+
+
+

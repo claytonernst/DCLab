@@ -1,0 +1,62 @@
+% conversionTable
+
+%Finished
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%Done, not Tested
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+cmoptim
+DCContainer
+DCDataset
+DCMetamodel
+DCOptions
+DCSurface
+ResponseModel
+ResponseObservation
+ModelAndObservationPair
+PiecewiseSurrogateTree
+FreeParameter
+jobQueue
+nqcqp
+GUIsession
+ConsistencyTest
+OuterboundSubDivide
+ResponsePrediction
+ParameterOptimization
+
+
+%Removed
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+DCSurrogateModel
+DCObjectTool
+ThreeDXSect
+TwoDXSect
+
+
+%Started
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+PolyDataset (need to fix evalSurrogateModels, compare to XSect.m)
+XSect (check plotting)
+
+%Not Started
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+gui
+
+%Things to do when converted
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Programming Goals
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+make ParameterOptimization work (maybe scrap it and start over.....)
+(this may get rid of some private function PolyDataset and others....)
+make ParameterOptimization work with Feasible set too...
+feasible set sampler
+convex outer bound of feasible set?
+bounding box of feasible set
+make sure DClab.randomPoint works and does what you want
+write good test functions
+dispProps for everybody
+other GRI demos like jpc04.....m
+profile

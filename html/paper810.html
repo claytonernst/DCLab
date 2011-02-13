@@ -1,0 +1,815 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>paper810</title><meta name="generator" content="MATLAB 7.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2010-10-25"><meta name="DC.source" content="paper810.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Script for Trent/Andy/Michael paper</a></li><li><a href="#2">Import class</a></li><li><a href="#3">Load GRI polys</a></li><li><a href="#4">Check number of parameters and number of exp/data pairs</a></li><li><a href="#6">Create H simply by eliminating all ModelsObservationPairs</a></li><li><a href="#7">Copy, and eliminate F5 (prior analysis indicates it is a problem)</a></li><li><a href="#8">Check Consistency of E</a></li><li><a href="#9">Extract Model for F5, look at some properties</a></li><li><a href="#10">Prediction of F5 on H</a></li><li><a href="#11">Prediction of F5 on E</a></li><li><a href="#12">Look at Prediction Sensitivities</a></li><li><a href="#16">Reduced Prediction, based on Sensitivities</a></li><li><a href="#17">Increase all experimental uncertainties by 20%</a></li><li><a href="#18">Copy, and eliminate F5</a></li><li><a href="#19">Prediction of F5 on Ei</a></li><li><a href="#20">Comments</a></li></ul></div><h2>Script for Trent/Andy/Michael paper<a name="1"></a></h2><p>August 14, 2010</p><pre class="codeinput"><span class="comment">% addpath('c:\unzipped\SeDuMi_1_3\SeDuMi_1_3')</span>
+<span class="comment">% addpath('c:\unzipped\SeDuMi_1_3\SeDuMi_1_3\conversion')</span>
+<span class="comment">% addpath('c:\unzipped\SeDuMi_1_3\SeDuMi_1_3\examples')</span>
+<span class="comment">% rmpath('C:\Documents and Settings\musyn\InstalledMatlabTools\DClabV2\SeDuMi_1_21')</span>
+</pre><h2>Import class<a name="2"></a></h2><pre class="codeinput">import <span class="string">DClab.*</span>
+</pre><h2>Load GRI polys<a name="3"></a></h2><pre class="codeinput">D = createGRI;
+</pre><h2>Check number of parameters and number of exp/data pairs<a name="4"></a></h2><pre class="codeinput">D.nParameters
+</pre><pre class="codeoutput">ans =
+   102
+</pre><pre class="codeinput">nexp = D.nPairs
+</pre><pre class="codeoutput">nexp =
+    77
+</pre><h2>Create H simply by eliminating all ModelsObservationPairs<a name="6"></a></h2><pre class="codeinput">H = D;
+H.ModelAndObservationPair(1:nexp) = [];
+</pre><h2>Copy, and eliminate F5 (prior analysis indicates it is a problem)<a name="7"></a></h2><pre class="codeinput">D.ModelAndObservationPair(37).name
+E = D;
+E.ModelAndObservationPair(37) = [];
+</pre><pre class="codeoutput">ans =
+Laminar flame speeds (f5): Just P=5 bar phi=1.0 Tu=400K
+</pre><h2>Check Consistency of E<a name="8"></a></h2><pre class="codeinput">C = ConsistencyTest(E);
+[C.LB C.UB]
+</pre><pre class="codeoutput">=====Creating initial PolyDataset from DCDataset=====
+  Computing upper bound
+  Computing lower bound
+Exiting: maximum number of branch and bound iterations reached
+UB: 0.24243
+LB: 0.12945
+=====The DCDataset is Consistent=====
+ans =
+  1.2945e-001  2.4243e-001
+</pre><h2>Extract Model for F5, look at some properties<a name="9"></a></h2><pre class="codeinput">Mf5 = D.ModelAndObservationPair(37).ResponseModel;
+D.ModelAndObservationPair(37).constraintLowerLimit
+D.ModelAndObservationPair(37).constraintUpperLimit
+D.ModelAndObservationPair(37).name
+D.ModelAndObservationPair(37).observationUncertainty
+D.ModelAndObservationPair(37).observedValue
+D.ModelAndObservationPair(37).ResponseModel
+D.ModelAndObservationPair(37).ResponseObservation
+</pre><pre class="codeoutput">ans =
+  1.5764e+000
+ans =
+  1.6201e+000
+ans =
+Laminar flame speeds (f5): Just P=5 bar phi=1.0 Tu=400K
+ans =
+ -2.2449e-002  2.1346e-002
+ans =
+  1.5988e+000
+ans =
+     DClab.ResponseModel object
+       Model: Laminar flame speeds (f5): Just P=5 bar phi=1.0 Tu=400K
+ans =
+     DClab.ResponseObservation object
+       -0.022 &lt;= y - 1.6 &lt;= 0.021
+</pre><h2>Prediction of F5 on H<a name="10"></a></h2><pre class="codeinput">PonH = ResponsePrediction(Mf5,H);
+LowerBndRange = 10.^[PonH.LBo PonH.LBi]
+UpperBndRange = 10.^[PonH.UBi PonH.UBo]
+</pre><pre class="codeoutput">=====Creating initial PiecewiseSurrogateModelTree from the ResponseModel=====
+=====Creating initial PolyDataset from DCDataset=====
+  Computing outer lower bound
+  Computing outer upper bound
+  Computing inner lower bound
+  Computing inner upper bound
+Exiting with 1 iteration: branchBoundTermTol met
+=====Final Bounds=====
+UBo: 1.8138
+UBi: 1.8138
+LBi: 1.2695
+LBo: 1.2695
+LowerBndRange =
+  1.8597e+001  1.8597e+001
+UpperBndRange =
+  6.5136e+001  6.5136e+001
+</pre><h2>Prediction of F5 on E<a name="11"></a></h2><pre class="codeinput">P = ResponsePrediction(Mf5,E);
+LowerBndRange = 10.^[P.LBo P.LBi]
+UpperBndRange = 10.^[P.UBi P.UBo]
+</pre><pre class="codeoutput">=====Creating initial PiecewiseSurrogateModelTree from the ResponseModel=====
+=====Creating initial PolyDataset from DCDataset=====
+  Computing outer lower bound
+  Computing outer upper bound
+  Computing inner lower bound
+  Computing inner upper bound
+Exiting: maximum number of branch and bound iterations reached
+=====Final Bounds=====
+UBo: 1.5586
+UBi: 1.5517
+LBi: 1.5339
+LBo: 1.496
+LowerBndRange =
+  3.1336e+001  3.4191e+001
+UpperBndRange =
+  3.5618e+001  3.6189e+001
+</pre><h2>Look at Prediction Sensitivities<a name="12"></a></h2><p>LowerBound prediction to lower bounds of ExperimentalObservations</p><pre class="codeinput">[sLL,sLLidx] = max(abs(P.outerBndSens.lower.expl));
+sLL
+sLLidx
+bar(abs(P.outerBndSens.lower.expl))
+</pre><pre class="codeoutput">sLL =
+  9.3065e-001
+sLLidx =
+    37
+</pre><img vspace="5" hspace="5" src="paper810_01.png" alt=""> <p>LowerBound prediction to upper bounds of ExperimentalObservations</p><pre class="codeinput">[sLU,sLUidx] = max(abs(P.outerBndSens.lower.expu));
+sLU
+sLUidx
+</pre><pre class="codeoutput">sLU =
+  7.3924e-002
+sLUidx =
+    17
+</pre><p>UpperBound prediction to lower bounds of ExperimentalObservations</p><pre class="codeinput">[sUL,sULidx] = max(abs(P.outerBndSens.upper.expl));
+sUL
+sULidx
+</pre><pre class="codeoutput">sUL =
+  1.1163e-002
+sULidx =
+    68
+</pre><p>UpperBound prediction to upper bounds of ExperimentalObservations</p><pre class="codeinput">[sUU,sUUidx] = max(abs(P.outerBndSens.upper.expu));
+sUU
+sUUidx
+bar(abs(P.outerBndSens.upper.expu))
+</pre><pre class="codeoutput">sUU =
+  1.0248e+000
+sUUidx =
+    36
+</pre><img vspace="5" hspace="5" src="paper810_02.png" alt=""> <h2>Reduced Prediction, based on Sensitivities<a name="16"></a></h2><p>Prediction bounds are most sensitive to ModelObservation pairs 36 and 37 within DataSet E.  Keep these as reduced DataSet, and redo prediction</p><pre class="codeinput">R = E;
+R.ModelAndObservationPair([1:35 38:end]) = [];
+RedP = ResponsePrediction(Mf5,R);
+LowerBndRange = 10.^[RedP.LBo RedP.LBi]
+UpperBndRange = 10.^[RedP.UBi RedP.UBo]
+</pre><pre class="codeoutput">=====Creating initial PiecewiseSurrogateModelTree from the ResponseModel=====
+=====Creating initial PolyDataset from DCDataset=====
+  Computing outer lower bound
+  Computing outer upper bound
+  Computing inner lower bound
+  Computing inner upper bound
+Exiting: maximum number of branch and bound iterations reached
+=====Final Bounds=====
+UBo: 1.5652
+UBi: 1.5629
+LBi: 1.5215
+LBo: 1.4932
+LowerBndRange =
+  3.1131e+001  3.3226e+001
+UpperBndRange =
+  3.6550e+001  3.6742e+001
+</pre><h2>Increase all experimental uncertainties by 20%<a name="17"></a></h2><p>The function <tt>createGRIb</tt> is just a copy of <tt>createGRI</tt>, which loads the polynomials, and the uncertainties that Xiaoqing derived.  The new version, <tt>createGRIb</tt> simply scales the uncertainty by the 4th argument, as a factor, in this case increasing by 20%.</p><pre class="codeinput">Di = createGRIb([],[],[],1.10);
+</pre><pre class="codeoutput">u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.4502e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.3181e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.1004e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.1523e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.9455e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.4871e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.1987e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.4346e+000
+u = 
+             value: [-1.6633e-001 1.3830e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.0607e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.5145e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  4.9280e-001
+u = 
+             value: [-3.4242e-001 2.1748e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.2095e+000
+u = 
+             value: [-3.4242e-001 2.1748e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.4624e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.5340e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.1903e+000
+u = 
+             value: [-1.6633e-001 1.3830e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.6542e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.4314e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.7076e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.5988e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.6990e+000
+u = 
+             value: [-3.4242e-001 2.1748e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.7709e+000
+u = 
+             value: [-1.6633e-001 1.3830e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.9912e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.9191e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.9590e-001
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.5798e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.5682e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.9638e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.9542e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.1038e+000
+u = 
+             value: [-1.9629e-001 1.5534e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.5315e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.1903e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.7634e+000
+u = 
+             value: [-1.1197e-001 1.0209e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.6821e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.2529e+000
+u = 
+             value: [-1.1103e-001 1.0139e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.1303e+000
+u = 
+             value: [-8.1448e-002 7.8064e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.3560e+000
+u = 
+             value: [-6.3842e-002 6.2738e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.5988e+000
+u = 
+             value: [-8.6205e-002 8.2011e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.3096e+000
+u = 
+             value: [-1.1197e-001 1.0209e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.9031e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.0212e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.5250e+000
+u = 
+             value: [-8.7150e-002 1.5534e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+     3
+u = 
+             value: [-8.7150e-002 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.5911e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.6990e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.6335e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.7275e+000
+u = 
+             value: [-3.4242e-001 2.1748e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.2041e+000
+u = 
+             value: [-1.6633e-001 1.3830e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.4393e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.8007e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+ -2.2300e-002
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  4.6240e-001
+u = 
+             value: [-8.7761e-002 8.3285e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  3.1987e+000
+u = 
+             value: [-1.1197e-001 1.0209e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  3.0960e-001
+u = 
+             value: [-2.4551e-001 1.7970e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+ -7.9590e-001
+u = 
+             value: [-1.2057e-001 1.0834e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+ -7.4470e-001
+u = 
+             value: [-2.3328e-001 1.7402e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+ -8.5390e-001
+u = 
+             value: [-1.9629e-001 1.5534e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.8451e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.4065e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.2856e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.2014e+000
+u = 
+             value: [-1.3830e-001 1.2057e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.7634e+000
+u = 
+             value: [-1.6633e-001 1.3830e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.7412e+000
+u = 
+             value: [-1.6633e-001 1.3830e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.3032e+000
+u = 
+             value: [-1.9629e-001 1.5534e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.6021e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.0531e+000
+u = 
+             value: [-1.2270e-001 1.0985e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  6.1280e-001
+u = 
+             value: [-1.0432e-001 9.6344e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.3324e+000
+u = 
+             value: [-4.6245e-002 4.6192e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.2553e+000
+u = 
+             value: [-1.1197e-001 1.0209e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.2430e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  3.1581e+000
+u = 
+             value: [-6.3550e-002 6.2474e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.6043e+000
+u = 
+             value: [-1.9629e-001 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.6395e+000
+u = 
+             value: [-1.3830e-001 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.3464e+000
+u = 
+             value: [-6.6540e-002 6.5163e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.5508e+000
+u = 
+             value: [-1.1778e-001 1.0633e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.0934e+000
+u = 
+             value: [-8.7150e-002 8.2785e-002]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  1.4624e+000
+u = 
+             value: [-1.9629e-001 1.5534e-001]
+              type: 'absolute'
+    transformation: 'none'
+d =
+  2.7505e+000
+</pre><h2>Copy, and eliminate F5<a name="18"></a></h2><pre class="codeinput">Ei = Di;
+Ei.ModelAndObservationPair(37) = [];
+</pre><h2>Prediction of F5 on Ei<a name="19"></a></h2><p>Note that there is not much difference between these at the original prediction interval.  This illustrates that what is shown in the paper is not simply that F5 is extremely sensitive to small increases in the feasible set.   Indeed, the paper shows that the approximations put forth, while seemingly harmless, incur very large changes in prediction, unlike modest percentage increases in all of the experimental constraints that define the feasible set.</p><pre class="codeinput">Pi = ResponsePrediction(Mf5,Ei);
+LowerBndRange = 10.^[Pi.LBo Pi.LBi]
+UpperBndRange = 10.^[Pi.UBi Pi.UBo]
+</pre><pre class="codeoutput">=====Creating initial PiecewiseSurrogateModelTree from the ResponseModel=====
+=====Creating initial PolyDataset from DCDataset=====
+  Computing outer lower bound
+  Computing outer upper bound
+  Computing inner lower bound
+  Computing inner upper bound
+Exiting with 1 iteration: branchBoundTermTol met
+=====Final Bounds=====
+UBo: 1.6042
+UBi: 1.5962
+LBi: 1.4762
+LBo: 1.4576
+LowerBndRange =
+  2.8680e+001  2.9935e+001
+UpperBndRange =
+  3.9465e+001  4.0201e+001
+</pre><h2>Comments<a name="20"></a></h2><p>I didn't compute it, but we can back out the global bounds that the sensitivities imply, and couple those with the absolute changes made to the experimental uncertainties, and convince ourselves that the predictions for Pi (with relaxed uncertainties) are within the provable bounds implied by the sensitivity measures.</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.11<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Script for Trent/Andy/Michael paper
+% August 14, 2010
+
+% addpath('c:\unzipped\SeDuMi_1_3\SeDuMi_1_3')
+% addpath('c:\unzipped\SeDuMi_1_3\SeDuMi_1_3\conversion')
+% addpath('c:\unzipped\SeDuMi_1_3\SeDuMi_1_3\examples')
+% rmpath('C:\Documents and Settings\musyn\InstalledMatlabTools\DClabV2\SeDuMi_1_21')
+
+%% Import class
+import DClab.*
+
+%% Load GRI polys
+D = createGRI;
+
+%% Check number of parameters and number of exp/data pairs
+D.nParameters
+%%
+nexp = D.nPairs
+
+%% Create H simply by eliminating all ModelsObservationPairs
+H = D;
+H.ModelAndObservationPair(1:nexp) = [];
+
+%% Copy, and eliminate F5 (prior analysis indicates it is a problem)
+D.ModelAndObservationPair(37).name
+E = D;
+E.ModelAndObservationPair(37) = [];
+
+%% Check Consistency of E
+C = ConsistencyTest(E);
+[C.LB C.UB]
+
+%% Extract Model for F5, look at some properties
+Mf5 = D.ModelAndObservationPair(37).ResponseModel;
+D.ModelAndObservationPair(37).constraintLowerLimit
+D.ModelAndObservationPair(37).constraintUpperLimit
+D.ModelAndObservationPair(37).name
+D.ModelAndObservationPair(37).observationUncertainty
+D.ModelAndObservationPair(37).observedValue
+D.ModelAndObservationPair(37).ResponseModel
+D.ModelAndObservationPair(37).ResponseObservation
+
+%% Prediction of F5 on H
+PonH = ResponsePrediction(Mf5,H);
+LowerBndRange = 10.^[PonH.LBo PonH.LBi]
+UpperBndRange = 10.^[PonH.UBi PonH.UBo]
+
+%% Prediction of F5 on E
+P = ResponsePrediction(Mf5,E);
+LowerBndRange = 10.^[P.LBo P.LBi]
+UpperBndRange = 10.^[P.UBi P.UBo]
+
+%% Look at Prediction Sensitivities
+% LowerBound prediction to lower bounds of ExperimentalObservations
+[sLL,sLLidx] = max(abs(P.outerBndSens.lower.expl));
+sLL
+sLLidx
+bar(abs(P.outerBndSens.lower.expl))
+
+%%
+% LowerBound prediction to upper bounds of ExperimentalObservations
+[sLU,sLUidx] = max(abs(P.outerBndSens.lower.expu));
+sLU
+sLUidx
+
+%%
+% UpperBound prediction to lower bounds of ExperimentalObservations
+[sUL,sULidx] = max(abs(P.outerBndSens.upper.expl));
+sUL
+sULidx
+
+%%
+% UpperBound prediction to upper bounds of ExperimentalObservations
+[sUU,sUUidx] = max(abs(P.outerBndSens.upper.expu));
+sUU
+sUUidx
+bar(abs(P.outerBndSens.upper.expu))
+
+%% Reduced Prediction, based on Sensitivities
+% Prediction bounds are most sensitive to ModelObservation pairs 36 and 37
+% within DataSet E.  Keep these as reduced DataSet, and redo prediction
+R = E;
+R.ModelAndObservationPair([1:35 38:end]) = [];
+RedP = ResponsePrediction(Mf5,R);
+LowerBndRange = 10.^[RedP.LBo RedP.LBi]
+UpperBndRange = 10.^[RedP.UBi RedP.UBo]
+
+%% Increase all experimental uncertainties by 20%
+% The function |createGRIb| is just a copy of |createGRI|, which loads the
+% polynomials, and the uncertainties that Xiaoqing derived.  The new
+% version, |createGRIb| simply scales the uncertainty by the 4th argument,
+% as a factor, in this case increasing by 20%.
+Di = createGRIb([],[],[],1.10);
+
+%% Copy, and eliminate F5
+Ei = Di;
+Ei.ModelAndObservationPair(37) = [];
+
+%% Prediction of F5 on Ei
+% Note that there is not much difference between these at the original
+% prediction interval.  This illustrates that what is shown in the paper is not
+% simply that F5 is extremely sensitive to small increases in the feasible
+% set.   Indeed, the paper shows that the approximations put forth, while
+% seemingly harmless, incur very large changes in prediction, unlike modest
+% percentage increases in all of the experimental constraints that define
+% the feasible set.
+Pi = ResponsePrediction(Mf5,Ei);
+LowerBndRange = 10.^[Pi.LBo Pi.LBi]
+UpperBndRange = 10.^[Pi.UBi Pi.UBo]
+
+%% Comments
+% I didn't compute it, but we can back out the global bounds that the
+% sensitivities imply, and couple those with the absolute changes made to
+% the experimental uncertainties, and convince ourselves that the
+% predictions for Pi (with relaxed uncertainties) are within the provable
+% bounds implied by the sensitivity measures.
+
+
+
+##### SOURCE END #####
+--></body></html>

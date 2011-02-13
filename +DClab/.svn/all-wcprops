@@ -1,0 +1,209 @@
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svnroot/collab-sci/!svn/ver/75/DClabV2/+DClab
+END
+help.m
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svnroot/collab-sci/!svn/ver/17/DClabV2/+DClab/help.m
+END
+CMeasTrust.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/CMeasTrust.m
+END
+randomPoint.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/randomPoint.m
+END
+listBnds2domain.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/listBnds2domain.m
+END
+robustSave.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/robustSave.m
+END
+makeComputerDCSlave.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/makeComputerDCSlave.m
+END
+findExtremeX.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/findExtremeX.m
+END
+buildQuadX.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/buildQuadX.m
+END
+twoNormRegression.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/twoNormRegression.m
+END
+transformAndAddNominals.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/transformAndAddNominals.m
+END
+cmoptim.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svnroot/collab-sci/!svn/ver/53/DClabV2/+DClab/cmoptim.m
+END
+createDomainStructure.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/createDomainStructure.m
+END
+lhsdesign.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/lhsdesign.m
+END
+conversionTable.txt
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/conversionTable.txt
+END
+isValidDomain.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/isValidDomain.m
+END
+countcode.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/countcode.m
+END
+statgetargs.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/statgetargs.m
+END
+Guisession.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/Guisession.m
+END
+stopGui.m
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/stopGui.m
+END
+mergeEvals.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/mergeEvals.m
+END
+isrealsymmatrix.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/isrealsymmatrix.m
+END
+dcdispstr.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/18/DClabV2/+DClab/dcdispstr.m
+END
+issubset.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/issubset.m
+END
+robustDelete.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/robustDelete.m
+END
+findStartPt.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/findStartPt.m
+END
+coeff2quadform.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/coeff2quadform.m
+END
+nLinesSourceCode.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/nLinesSourceCode.m
+END
+lhsample.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/lhsample.m
+END
+disperror.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/disperror.m
+END
+ResponseObservation.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/collab-sci/!svn/ver/7/DClabV2/+DClab/ResponseObservation.m
+END
+ModelAndObservationPair.m
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svnroot/collab-sci/!svn/ver/18/DClabV2/+DClab/ModelAndObservationPair.m
+END
+addMultZeros.m
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/addMultZeros.m
+END
+DCObject.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/DCObject.m
+END
+robustLoad.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/robustLoad.m
+END

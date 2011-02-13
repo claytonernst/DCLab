@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/classTestFunctions/DCSurface
+END
+testDCSurfaceConstructor.m
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/classTestFunctions/DCSurface/testDCSurfaceConstructor.m
+END
+testDCSurfaceEval.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/classTestFunctions/DCSurface/testDCSurfaceEval.m
+END
+testDCSurfaceGetPrivate.m
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/classTestFunctions/DCSurface/testDCSurfaceGetPrivate.m
+END
+testDCSurfaceChangeDomain.m
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/classTestFunctions/DCSurface/testDCSurfaceChangeDomain.m
+END

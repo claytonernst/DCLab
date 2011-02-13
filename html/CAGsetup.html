@@ -1,0 +1,197 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>Info for 76 polys</title><meta name="generator" content="MATLAB 7.10"><meta name="date" content="2010-10-03"><meta name="m-file" content="CAGsetup"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>Info for 76 polys</h1><!--introduction--><p>This file illustrates how the polynomial inequalities are accessed, and evaluated.  Andrew Packard, Fall 2010.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Load the data</a></li><li><a href="#2">Fields of <tt>D</tt></a></li><li><a href="#3">Quadratic forms</a></li><li><a href="#4">Create a random Xu, with values between -1 and 1, uniform</a></li><li><a href="#5">Check feasability of Xu (randomly chosen in unit cube)</a></li><li><a href="#6">Check that <tt>Xfeas</tt> is indeed feasible</a></li></ul></div><h2>Load the data<a name="1"></a></h2><p><tt>D</tt> is a 76-by-1 struct, and <tt>Xfeas</tt> is 102-by-1 <tt>double</tt></p><pre class="codeinput">load <span class="string">CAGdata</span>
+whos
+</pre><pre class="codeoutput">  Name         Size             Bytes  Class     Attributes
+
+  D           76x1             104624  struct              
+  Xfeas      102x1                816  double              
+
+</pre><h2>Fields of <tt>D</tt><a name="2"></a></h2><p><tt>D</tt> is a <tt>struct</tt> array.  It contains the quadratic forms, and the upper/lower bounds constraints on their values.</p><pre class="codeinput">fieldnames(D)
+</pre><pre class="codeoutput">ans = 
+    'Qform'
+    'Pidx'
+    'Interval'
+</pre><h2>Quadratic forms<a name="3"></a></h2><p>The field <tt>Qform</tt> in <tt>D</tt> represents the quadratic form.  It is a symmetric matrix.  Not all rows/columns are given, since each quadratic form is only a function of 6-15 of the X's.  Hence the quadratic form matrices are sparse and low rank.  For example, the fourth quadratic form only depends on 5 of the X coordinates.   Hence the matrix is 6-by-6, and the <tt>Pidx</tt> field indicates which X's are involved.</p><pre class="codeinput">D(4).Qform
+D(4).Pidx
+</pre><pre class="codeoutput">ans =
+  1.1089e+000 -1.1505e-001  1.3884e-002 -5.5068e-002 -6.3185e-003 -3.0822e-002
+ -1.1505e-001 -1.0313e-003  2.0424e-005 -3.7224e-004  5.1627e-003 -5.4469e-004
+  1.3884e-002  2.0424e-005  1.0981e-002 -3.3509e-003 -1.3196e-003 -5.8338e-003
+ -5.5068e-002 -3.7224e-004 -3.3509e-003  8.2312e-003  2.1567e-003 -6.6318e-003
+ -6.3185e-003  5.1627e-003 -1.3196e-003  2.1567e-003 -6.0635e-003  1.2406e-003
+ -3.0822e-002 -5.4469e-004 -5.8338e-003 -6.6318e-003  1.2406e-003  1.0893e-002
+ans =
+    19
+    20
+    22
+    28
+    63
+</pre><h2>Create a random Xu, with values between -1 and 1, uniform<a name="4"></a></h2><pre class="codeinput">Xu = 2*(rand(102,1)-0.5);
+</pre><h2>Check feasability of Xu (randomly chosen in unit cube)<a name="5"></a></h2><p>Most likely, Xu is not feasible on all of the inequalities, but will be feasible on some.  Check the first 10.  The field <tt>Interval</tt> is a 1-by-2, which has the target value (as an interval) for the quadratic form.  If the value lies in the interval defined by [Interval(1) Interval(2)], then x is feasible for that given inequality.</p><pre class="codeinput"><span class="keyword">for</span> i=1:10
+   OneAboveX = [1;Xu(D(i).Pidx)];  <span class="comment">% [1;x], only using the relevant coordinates</span>
+   ValueAtX = OneAboveX'*D(i).Qform*OneAboveX;  <span class="comment">% [1;x]'*M*[1;x]</span>
+   [D(i).Interval(1) ValueAtX D(i).Interval(2)]
+<span class="keyword">end</span>
+<span class="comment">%</span>
+<span class="comment">% When I run this, it is usually only feasible on 2 or 3 of the first 10.</span>
+</pre><pre class="codeoutput">ans =
+  2.4044e+000  2.5439e+000  2.4916e+000
+ans =
+  1.2212e+000  1.5178e+000  1.3973e+000
+ans =
+  2.0546e+000  2.1426e+000  2.1418e+000
+ans =
+  1.1065e+000  9.2917e-001  1.1937e+000
+ans =
+  1.8997e+000  1.7750e+000  1.9869e+000
+ans =
+  1.3902e+000  1.3521e+000  1.5663e+000
+ans =
+  2.1529e+000  2.2858e+000  2.2401e+000
+ans =
+  1.3377e+000  1.5356e+000  1.5138e+000
+ans =
+  1.9358e+000  1.9909e+000  2.1576e+000
+ans =
+  1.4687e+000  1.5067e+000  1.5559e+000
+</pre><h2>Check that <tt>Xfeas</tt> is indeed feasible<a name="6"></a></h2><p>First, the entries of <tt>Xfeas</tt> need to be within -1 and 1</p><pre class="codeinput">all(Xfeas&gt;=-1)
+all(Xfeas&lt;=1)
+</pre><pre class="codeoutput">ans =
+     1
+ans =
+     1
+</pre><p>Next, verify that the quadratic forms are all feasible.</p><pre class="codeinput">feas = false(length(D),1);
+<span class="keyword">for</span> i=1:length(D)
+    vec = [1;Xfeas(D(i).Pidx)];
+    valTmp = vec'*D(i).Qform*vec;
+    feas(i) = D(i).Interval(1)&lt;=valTmp  &amp;  valTmp&lt;=D(i).Interval(2);
+<span class="keyword">end</span>
+all(feas)
+</pre><pre class="codeoutput">ans =
+     1
+</pre><p>Hence the feasible set is nonempty.  Can we get a "decent" convex outer-bound of the set?</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.10<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Info for 76 polys
+% This file illustrates how the polynomial inequalities
+% are accessed, and evaluated.  Andrew Packard, Fall 2010.
+
+%% Load the data
+% |D| is a 76-by-1 struct, and |Xfeas| is 102-by-1 |double|
+load CAGdata
+whos
+
+%% Fields of |D|
+% |D| is a |struct| array.  It contains the quadratic forms, and the upper/lower bounds constraints on
+% their values.
+fieldnames(D)
+
+%% Quadratic forms
+% The field |Qform| in |D| represents the quadratic form.  It is a
+% symmetric matrix.  Not all rows/columns are given, since each quadratic
+% form is only a function of 6-15 of the X's.  Hence the quadratic form
+% matrices are sparse and low rank.  For example, the fourth quadratic form
+% only depends on 5 of the X coordinates.   Hence the matrix is 6-by-6, and
+% the |Pidx| field indicates which X's are involved.
+D(4).Qform
+D(4).Pidx
+
+%% Create a random Xu, with values between -1 and 1, uniform
+Xu = 2*(rand(102,1)-0.5);
+
+%% Check feasability of Xu (randomly chosen in unit cube)
+% Most likely, Xu is not feasible on all of the inequalities, but will be feasible
+% on some.  Check the first 10.  The field |Interval| is a 1-by-2, which has
+% the target value (as an interval) for the quadratic form.  If the value
+% lies in the interval defined by [Interval(1) Interval(2)], then x is
+% feasible for that given inequality.
+for i=1:10
+   OneAboveX = [1;Xu(D(i).Pidx)];  % [1;x], only using the relevant coordinates
+   ValueAtX = OneAboveX'*D(i).Qform*OneAboveX;  % [1;x]'*M*[1;x]
+   [D(i).Interval(1) ValueAtX D(i).Interval(2)]
+end
+%
+% When I run this, it is usually only feasible on 2 or 3 of the first 10.
+
+%% Check that |Xfeas| is indeed feasible
+% First, the entries of |Xfeas| need to be within -1 and 1
+all(Xfeas>=-1)
+all(Xfeas<=1)
+%%
+% Next, verify that the quadratic forms are all feasible.
+feas = false(length(D),1);
+for i=1:length(D)
+    vec = [1;Xfeas(D(i).Pidx)];
+    valTmp = vec'*D(i).Qform*vec;
+    feas(i) = D(i).Interval(1)<=valTmp  &  valTmp<=D(i).Interval(2);
+end
+all(feas)
+%%
+% Hence the feasible set is nonempty.  Can we get a "decent" convex
+% outer-bound of the set?
+
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,757 @@
+<html>
+<head>
+<title>[Mass-Spring-Damper Example] (Data Collaboration Toolbox)</title>
+
+<link rel=stylesheet href="../../../docs/html/docstyle1.css" type="text/css">
+</head>
+<body>
+
+
+</a><!-- NAVBARTOP -->
+<table class="nav" border=0 width="100%" cellpadding=0 cellspacing=0><tr>
+<td valign=baseline><b>Data Collaboration Toolbox</b></td>
+<td valign=baseline align=right>
+<a href="../../../docs/html/demo4.html">
+<img src="../../../docs/html/images/prev.gif" alt="Previous page" border=0></a>
+&nbsp
+<a href="../../../docs/html/gettingStarted.html">
+<img border="0" alt="up" src="../../../docs/html/images/up.gif"></a> 
+&nbsp
+<a href="../../../docs/html/chemexample.html">
+<img border="0" alt="Next page" src="../../../docs/html/images/next.gif"></a> 
+</td>
+</tr>
+</table>
+
+<hr>
+
+<h1>4.2 Mass-Spring-Damper System Investigated with Data Collaboration</h1>
+
+<h2>Contents</h2>
+<div>
+<ul>
+<li><a href="#0">Introduction</a></li>
+<li><a href="#1">Displacement Response Data</a></li>
+<li><a href="#2">Creation of DClab Assertion Objects</a></li>
+<li><a href="#3">Initial Consistency Analysis</a></li>
+<li><a href="#4">Predicting the 2 Newton peak displacement (peakDis2N)</a></li>
+<li><a href="#5">Consistency Analysis Incorporating peakDis2N</a></li>
+<li><a href="#6">Concluding Remarks</a></li>
+</ul>
+</div>
+
+<h2>Introduction<a name="0"></a></h2>
+<p>Here we present an example using of the Data Collaboration toolbox
+to examine a simple mass-spring-damper mechanical system. The MATLAB
+commands used in the example may be found in
+<tt>/DClab1p0b/examples/massSpringDamper/runExample.m</tt>. A
+simplified representation of such a system is pictured below. ADD
+PIC!!</p>
+
+<p>To demonstrate features of the Data Collaboration toolbox, we
+consider a time-series of data obtained by applying a 1N force to the
+mass, and hypothesize that a linear model explains the behavior.  We
+find that the linear model is consistent with this data and then
+predict what would be observed if a 2N force were applied. Lastly, we
+obtain data at this greater force and find it is inconsistent with the
+prediction. This indicates that our hypothesized model is invalid.</p>
+
+<h2>1. Displacement Response Data<a name="1"></a></h2>
+<p> The following plot shows displacement data taken on a
+mass-spring-damper system when it is initially at rest and a 1N force
+is applied to the mass.
+
+<p><img src="trueSystem1N.jpg" alt="MATLAB FIGURE" border=0 align=bottom></p>
+
+<p>We assume the experimentalist is interested in three
+features of this behavior 
+
+<ol>
+<li>What is the peak displacement the over the 150 second data window?</li>  
+<li>When does the displacement achieve 95% of its peak value?</li>  
+<li>What is the average displacement over the final 50 seconds?</li>
+</ol>
+
+For future reference, we abbreviate these three features by
+<b>peakDis1N</b>, <b>rt951N</b>, and <b>ssMean1N</b>, respectively.
+</p>
+
+<p>
+To imitate real-world conditions, we suppose the apparatus for
+measuring displacement is imperfect, but it faithfully records
+measurements within 0.2 m of the actual values. Additionally we
+suppose the experimentalist can only record the 95% rise time with a
+resolution of 1 sec. Thus given the plot of the true response shown
+above and our assumptions on the accuracy of the measurements, the
+experimentalist concludes
+
+<ol>
+<li> The peak displacement is 1.82 +/- 0.2 m. </li>
+<li> The time to rise to 95 percent of the peak displacement is 8 +/- 1 sec.</li>
+<li> The average displacement position over the final 50 seconds is 1.13
++/-0.2 m.</li>
+</ol>
+We now describe how to formulate information the experimentalist has
+(or has assumed) for use by the Data Collaboration software.
+</p>
+
+<h2>2. Creation of DClab Assertion Objects<a name="2"></a></h2>
+
+<p> From the viewpoint of the Data Collaboration software, information
+about a physical system comes in three forms: ExperimentAssertions,
+ModelAssertions, and ParameterAssertions. Each of these are MATLAB
+objects, with each ExperimentAssertion quantifying an aspect of an
+experimental observation, each ModelAssertion quantifying a
+corresponding aspect through a mathematical model for the system, and
+each ParameterAssertion supplying bounds on plausible values of any
+model parameters.</p>
+
+<h3>2.1. Experiment Assertions</h3>
+<p> We now proceed to create three ExperimentAssertion objects for the
+three observations made the by our fictitious experimenter. The
+typical <a href="../../../html/ExperimentAssertion.html">constructor
+syntax</a> for this object is</p>
+
+<p><code> ExpAssn = ExperimentAssertion(data,measUnc)</code></p>
+
+<p>where <code>data</code> is a scalar and <code>measUnc</code> is a
+positive scalar if the uncertainty in data is symmetric (i.e.,
+<code>data +/- measUnc</code>), or a 1x2 vector with a negative and
+positive component if the uncertainty in the data is expressed as
+<nobr><code> [data+measUnc(1), data+measUnc(2)]</code></nobr>.</p>
+
+<p> Assertion objects for the three observations made by our
+experimentalist are created with the MATLAB commands
+<pre class="codeinput">EA1 = ExperimentAssertion(1.82,0.2)
+EA2 = ExperimentAssertion(8,1); 
+EA3 = ExperimentAssertion(1.13,0.2); 
+</pre> 
+</p>
+
+<h3>2.2. Model Assertions</h3>
+
+<p>
+The next step is to generate ModelAssertions for these three
+observations. This is a two step process, where we first create a
+dcModel mfile, and then use this file to create the objects. More
+information on the expected functionality and syntactical requirements
+of such a file maybe found at <a
+href="../../../html/dcModel.html">dcModel</a>. Here we omit the details and
+simply present an example file. The dcModel mfile for this example has
+four inputs
+
+<ul>
+<li>flag: a string that indicates if the file should perform a simulation or return
+the model domain</li>
+<li>paramMat: a matrix of horizontally concatenated column vectors of parameter values that will be used for a model
+simulation</li>
+<li>feature: a string specifying which feature of the displacement the file
+should return.</li>
+<li>inputForce: the value of the force applied to the mass.</li>
+</ul>
+
+The following mfile conforms to the syntactical requirements of a
+dcModel mfile and performs these functions.
+</p>
+<pre class="codeinput">
+<span class="keyword">function</span> out = msdLinearModel(flag,paramMat,feature,inputForce)
+<span class="comment">% Function to simulate the mass-spring-damper system and compute
+% the requested feature of the displacement of the mass. A simple 
+% schematic of the system is pictured below
+% 
+%            \|       b        
+%            \|-------|]------|===|
+%            \|               | m |---> F
+%            \|----\/\/\/\/---|===|
+%            \|       k
+%                               |---> x
+%
+% Inputs:                         
+%   flag: A char array indicating the task to be performed: return the 
+%         domain of the model; communicate if model evaluations 
+%         should be saved; or simulate the model at a particular 
+%         combination of parameter values to produce the desired feature.
+%   paramMat: A 3x1 vector of values for the parameters b,k,and m. Can also
+%         be a horizontal concatenation of such vectors.
+%   feature: A char array
+%     feature == 'peakDis' implies out is the peak displacement over the 
+%        150 second simulation window.
+%     feature == 'rt95' implies out is the time when the displacement first 
+%        reaches 95% of its peak value.
+%     feature == 'ssMean' implies out is the mean displacement over the
+%        last 50 seconds of the simulation.
+%   inputForce: a scalar indicating the value of the step input of force
+%        applied to the mass.
+%
+% Outputs:
+%   out: Depending on flag, either the model domain, a bool indicating if 
+%        model evaluations should be saved, or the model prediction for the
+%        requested output. If paramMat is N horizontally concatenated 3x1
+%        vectors (i.e., 3xN), out is 1xN.</span>
+
+<span class="keyword">if</span> ~ischar(flag)
+  error(<span class="string">'Inputs: The first input to a dcModel must be a char array'</span>);
+<span class="keyword">end</span>
+<span class="keyword">switch</span> flag
+ <span class="keyword">case</span> <span class="string">'simulate'</span>
+  <span class="comment">% Determine how many horizontally concatenated parameter vectors
+  % were supplied</span>
+  N = size(paramMat,2);
+  
+  tspan = [0 150];  <span class="comment">% Define the time interval of simulation</span>
+  IC = [0;0];  <span class="comment">% Define the initial conditions</span>
+  
+  <span class="comment">% For each of the N parameter vectors, integrate the equations of motion
+  % with ode45.</span>
+  out = zeros(1,N);
+  <span class="keyword">for</span> i1 = 1:N
+    <span class="comment">% Define the parameter values</span> 
+    paramVect = paramMat(:,i1);
+    b = paramVect(1);
+    k = paramVect(2);
+    m = paramVect(3);
+    odefun = @(t,x) localEOM(t,x,inputForce,b,k,m);
+    [t, traj] = ode45(odefun,tspan,IC);
+    displ = traj(:,1); <span class="comment">% Displacement is the first state</span>
+    <span class="keyword">switch</span> feature
+     <span class="keyword">case</span> <span class="string">'peakDis'</span>
+      <span class="comment">% Compute the maximum displacement during the 150 second simulation.</span>
+      out(i1) = max(displ);
+
+     <span class="keyword">case</span> <span class="string">'rt95'</span>
+      <span class="comment">% Determine when the displacement first achieves 95% of its peak
+      % value. Since displacement is only available from the simulation at
+      % discrete points, linearly interpolate between points on either side
+      % of peak95 to estimate the 95% rise time.</span>
+      [peak peakIdx] = max(displ); 
+      peak95 = 0.95*peak;
+      idx1 = find(displ(1:peakIdx) < peak95);
+      idx2 = find(displ(1:peakIdx) > peak95); 
+
+      t95 = interp1(displ(idx1(end):idx2(1)),t(idx1(end):idx2(1)),peak95);
+      out(i1) = t95;
+
+     <span class="keyword">case</span> <span class="string">'ssMean'</span>
+      <span class="comment">% Average the displacement over the last 50 seconds.</span>
+      out(i1) = mean(displ(t >= 100));
+     <span class="keyword">otherwise</span>
+      error(<span class="string">'Inputs: Invalid feature'</span>)
+    <span class="keyword">end</span>
+  <span class="keyword">end</span>
+
+ <span class="keyword">case</span> <span class="string">'getModelDomain'</span>
+  <span class="comment">% Initialize the 3x1 model domain structure array with fields .name and .range</span>
+  modelDomain = struct(<span class="string">'name'</span>,cell(3,1),<span class="string">'range'</span>,cell(3,1));
+  modelDomain(1).name = <span class="string">'b'</span>;
+  modelDomain(1).range = [0.01 100];
+  modelDomain(2).name = <span class="string">'k'</span>;
+  modelDomain(2).range = [0.01 100];
+  modelDomain(3).name = <span class="string">'m'</span>;
+  modelDomain(3).range = [0.01 100];
+  out = modelDomain;
+
+ <span class="keyword">case</span> <span class="string">'isSaveEnabled'</span>
+  <span class="comment">% Specify that model evaluations should be saved to speed analysis</span>
+  out = true;
+  
+ <span class="keyword">otherwise</span>
+  error([<span class="string">'Inputs: Behavior for flag value '</span> flag <span class="string">' is not defined'</span>]);
+<span class="keyword">end</span>
+<span class="comment">%==subfunction for ODE45==</span>
+<span class="keyword">function</span> xdot = localEOM(t,x,F,b,k,m) <span class="comment">%#ok</span>
+xdot = [0 1;-k/m -b/m]*x + [0; F/m]; 
+</pre>
+<p> As an example of the behaviour of this file we now call it from
+the command line with a few input combinations.</p>
+<pre class="codeinput">domain = msdLinearModel(<span class="string">'getModelDomain'</span>) </pre>
+<pre class="codeoutput">domain = 
+
+3x1 struct array with fields:
+    name
+    range
+</pre>
+<pre class="codeinput">{domain.name}</pre>
+<pre class = "codeoutput">ans = 
+
+    'b'    'k'    'm'
+</pre>
+<p>This last output indicates that the file expects the parameter
+values to be supplied as a 3x1 column vector in the order
+b,k,m. Additionally, the range of each parameter was specified in the
+mfile to be <nobr>[0.01, 1000]</nobr>. Keeping the parameters finite
+and bounded away from zero prevents pathological situations such as
+division by zero. In general, the range field of the model domain
+structure should indicate the range of parameters for which the
+mathematical description of the model is thought to be valid. Prior
+knowledge about physically realistic values of the parameters is
+incorporated as ParameterAssertions in the next subsection.</p>
+<p>Now we use the mfile msdLinearModel to produce model predictions for
+the three features quantified experimentally. We use b=1, k=2, m=3.</p>
+<pre class="codeinput">
+msdLinearModel(<span class="string">'simulate'</span>,[1;2;3],<span class="string">'peakDis'</span>,1)</pre>
+<pre class="codeoutput">
+ans =
+
+     0.7592
+</pre>
+<pre class="codeinput">
+msdLinearModel(<span class="string">'simulate'</span>,[1;2;3],<span class="string">'rt95'</span>,1)</pre>
+<pre class="codeoutput">
+ans =
+
+    3.2953
+</pre>
+<pre class="codeinput">
+msdLinearModel(<span class="string">'simulate'</span>,[1;2;3],<span class="string">'ssMean'</span>,1)</pre>
+<pre class="codeoutput">
+ans =
+
+    0.5000
+</pre>
+<p>Additionally, the mfile can generate predictions for several vectors
+of parameter values simultaneously. The vectors should be horizontally
+concatenated and will produce a row vector output. Observe:</p>
+<pre class="codeinput">
+v1 = [1;2;3];
+v2 = [1;2;5];
+v3 = [2;2;2];
+v4 = [5;1;2];
+v5 = [2;1;2];
+msdLinearModel(<span class="string">'simulate'</span>,[v1 v2 v3 v4 v5],<span class="string">'peakDis'</span>,1)</pre>
+<pre class="codeoutput">
+ans =
+
+    0.7592    0.8018    0.5815    1.0000    1.0432
+</pre>
+
+<p>We now use this dcModel mfile to create a ModelAssertion object for
+peakDis1N, rt951N, and ssMean1N corresponding to the three
+ExperimentAssertion objects discussed above. The typical <a
+href="../../../html/ModelAssertion.html">constructor syntax</a> for
+this object is</p>
+
+<p><code> ModelAssn = ModelAssertion(@dcModel,addnInput1,addnInput2,...)</code></p>
+
+<p> where <code>@dcModel</code> is a function handle to a
+dcModel mfile, and <code>addnInput1,addnInput2,...</code> are
+optional input variables that are passed as the third,fourth,...
+inputs to the dcModel file when it is executed internally by the ModelAssertion
+<code>eval</code> method. We create the three assertion objects with the MATLAB
+commands 
+
+<pre class="codeinput">
+MA1 = ModelAssertion(@msdLinearModel,<span class="string">'peakDis'</span>,1); 
+MA2 = ModelAssertion(@msdLinearModel,<span class="string">'rt95'</span>,1); 
+MA3 = ModelAssertion(@msdLinearModel,<span class="string">'ssMean'</span>,1); 
+</pre>
+
+The second input in these calls becomes the feature input of msdLinearModel,
+while the third input, 1, becomes the inputForce. By providing
+additional inputs which are passed to the dcModel mfile, one such
+mfile can be the basis for multiple ModelAssertions. This allows the
+user to reuse code rather than write a separate dcModel mfile for each
+assertion.</p>
+
+
+<h3>2.3. Parameter Assertions<a name="4"></a></h3>
+
+<p>
+Now we incorporate any prior information the experimentalist has
+regarding parameters in his model. We assume that through some means
+external to the present discussion he has determined the for the
+hypothesized linear model, the mass m is between 5 and 10, the damping
+constant b is between 0.25 and 2, and the spring constant k is between
+0.5 and 2. This type of bounding information on the model parameters
+is required by the Data Collaboration software, and the time required
+to perform an analysis has a very strong dependence on the amount of
+uncertainty in the model parameters. The bounds are supplied by
+creating a ParameterAssertion object for each parameter. The typical
+<a href="../../../html/ParameterAssertion.html">constructor syntax</a>
+for this object is
+</p>
+
+<p><code> ParamAssn = ParameterAssertion(name,range)</code></p>
+
+<p>where <code>name</code> is the name used for the parameter, and
+<code>range</code> is a 1x2 vector supplying the lower and upper bound
+on the parameter's value. In order for the software to associate the
+two, the names used to create ParameterAssertions must correspond to
+the names specified in the modelDomain structure array in the dcModel
+mfile msdLinearModel. Parameter assertions for the three parameters
+employed by the dcModel mfile msdLinearModel.m are created with the
+commands</p>
+
+<pre class="codeinput">
+PA1 = ParameterAssertion(<span class="string">'m'</span>,[5 10]); 
+PA2 = ParameterAssertion(<span class="string">'b'</span>,[0.25, 2]); 
+PA3 = ParameterAssertion(<span class="string">'k'</span>,[0.5, 2]); 
+</pre>
+
+
+<h2>3. Initial Consistency Analysis<a name="3"></a></h2>
+
+<p>We have now defined 3 ExperimentAssertions, 3 ModelAssertions, and
+3 ParameterAssertions that incorporate the experimentalist's
+measurements on the mass-spring-damper system and his hypothesized
+model for its behavior. We will now check the joint consistency of
+these assertions, i.e., does the hypothesized model explain the
+observations within the alloted uncertainty. The assertions are
+<i>consistent</i> if there is a value for each parameter contained the
+range specified by its ParameterAssertions at which the model (as
+described by the ModelAssertions) predicts each experimental
+measurement within the uncertainty assigned by the
+ExperimentAssertions. The consistency analysis is performed by
+packaging all of these assertions into a Dataset object, and then
+performing computation on this object.</p>
+
+<h3>3.1. Dataset Construction</h3>
+
+<p>We will first combine each of the three ExperimentAssertions with
+its corresponding ModelAssertion in a DatasetUnit object, and then
+group the three DatasetUnits and the three parameter assertions
+together in a Dataset. The typical <a
+href="../../../html/DatasetUnit.html">constructor syntax</a> for a
+DatasetUnit is
+</p>
+
+<p><code> Unit = DatasetUnit(ExpAssn,ModelAssn,name)</code></p>
+
+<p> where <code>ExpAssn</code> and <code>ModelAssn</code> are
+ExperimentAssertion and ModelAssertion objects, respectively, and
+<code>name</code> is a label used to reference this pair of assertions
+for graphical displays and the like. The three DatasetUnit objects
+used for the present consistency analysis are created with the commands</p> 
+
+<pre class="codeinput">
+Unit1 = DatasetUnit(EA1,MA1,<span class="string">'peakDis1N'</span>); 
+Unit2 = DatasetUnit(EA2,MA2,<span class="string">'rt951N'</span>); 
+Unit3 = DatasetUnit(EA3,MA3,<span class="string">'ssMean1N'</span>); 
+</pre>
+
+<p>These are combined with the three ParameterAssertions to form a <a
+href="../../../html/Dataset.html">Dataset</a> object with the
+command</p>
+
+<pre class="codeinput">
+D = Dataset({Unit1;Unit2;Unit3},[PA1;PA2;PA3]); 
+</pre>
+
+The consistency of <code>D</code> is checked by creating a ConsistTest
+object. The typical syntax for this construction is
+
+<pre class="codeinput">
+testObj = ConsistTest(Dset,opt);
+</pre>
+
+where <code>Dset</code> is a Dataset object and <code>opt</code> is a
+<a href="../../../html/dcopt.html">DCOptions</a> object. The DCOptions
+object is similar in spirit to the options structures used by MATLAB's
+ODE integration and optimization functions. While not required,
+properly chosen options decrease the computational time. We now create
+a DCOptions object for the consistency test of our Dataset
+<code>D</code>, then perform the test itself.</p>
+
+<h3>3.2. Analysis options</h3>
+
+<p>The default analysis options for the Data Collaboration toolbox are
+generated by calling the DCOptions constructor with the no input arguments
+
+<pre class="codeinput">
+opt = DCOptions;
+</pre>
+
+The default settings may be overwritten by executing the constructor
+with the typical property/value syntax customary in MATLAB. 
+
+<pre class="codeinput">
+opt = DCOptions(<span class="string">'property1'</span>,value1,<span class="string">'property2'</span>,value2,...);
+</pre>
+
+For this example we preserve all the default settings except for the
+transformation property. The effect of the transformation setting is
+now discussed briefly.</p>
+
+<p> In this example, each ModelAssertion reduces the behavior of the
+hypothetical system model to a scalar valued output: the predicted
+peak displacement, 95% rise time, or average displacement over the
+final 50 seconds of simulation. This behavior is typical of a
+ModelAssertion object in general, with the object defining a function
+y = M(x) transforming a parameter vector into a scalar output. The
+mathematical procedure used the check the consistency of a Dataset
+involves approximating the function M by an algebraic relationship. In
+its current format, the software can compute approximations
+S<sup>ll</sup>, S<sup>gl</sup>, S<sup>lg</sup>, S<sup>gg</sup> such that 
+
+<ul>
+<li>S<sup>ll</sup>(x) &asymp; M(x)</li>
+<li>S<sup>gl</sup>(log<sub>10</sub>(x)) &asymp; M(x)</li>
+<li>S<sup>lg</sup>(x) &asymp; log<sub>10</sub>(M(x))</li>
+<li>S<sup>gg</sup>(log<sub>10</sub>(x)) &asymp; log<sub>10</sub>(M(x))</li>
+</ul> 
+
+where S<sup>XX</sup> is the algebraic approximation function and XX=<font
+color="red">ll</font> indicate a <font color="red">l</font>inear
+transformation is performed on both x and y, XX=<font
+color="red">gl</font> indicates a base10 lo<font
+color="red">g</font>arithmic transformation is performed on x and a
+<font color="red">l</font>inear transformation is performed on y,
+etc.</p>
+
+<p>Although any of the four transformations choices (or any
+combination) can be used, in this example using a linear
+transformation on the parameters x and a logarithmic transformation on
+the model outputs y is most efficient. For a general problem,
+selecting good transformations may require some trial and error.</p> 
+
+The DOptions object used in this example is created by changing the
+trans setting from the default value of {'linXlinY'} to {'linXlogY'},
+while leaving all other settings at their default values. This is
+accomplished by the command
+
+<pre class="codeinput">
+opt = DCOptions(<span class="string">'trans'</span>,{<span class="string">'linXlogY'</span>});
+</pre>
+
+<h3>3.3. Performing the consistency analysis</h3>
+
+<p>Having created the Dataset object <code>D</code> and the DCOptions
+object <code>opt</code>, the consistency analysis is
+performed with the command
+
+<pre class="codeinput">
+ConsistTest(D,opt);
+</pre>
+
+After approximately 3 minutes of computation on a standard desktop
+computer, the above line generates the output
+
+<pre class="codeoutput">
+UB: 1.0371
+LB: 0.91201
+=====The Dataset is Consistent=====
+</pre>
+
+indicating the Dataset <code>D</code> (which contains each of the
+assertion objects) is consistent. The values <code>LB</code> and
+<code>UB</code> are lower and upper bounds on the <i>consistency
+measure</i> of <code>D</code>. The mathematical definition and
+interpretation of this measure is provided in XXXX. For our purposes
+here, we only note that the dataset is consistent if the consistency
+measure is positive (which is guaranteed if the lower bound <code>LB</code> is
+positive).
+</p>
+
+<p>In summary, since the Dataset <code>D</code> is consistent, the
+hypothetical linear model for the mass-spring-damper system (which we
+know to be incorrect) is sufficient to explain the observations
+peakDis1N, rt951N, and ssMean1N. To further evaluate the hypothetical
+model, we will now use it in a predictive manner to estimate the peak
+displacement when a 2 Newton force is applied to the mass.
+
+<h2>4. Predicting the 2 Newton peak displacement (peakDis2N)<a name="4"></a></h2
+
+<p>Given a ModelAssertion for some system property P for which there
+may or may not be observational data, the Data Collaboration toolbox
+can compute an interval that contains all possible values of that
+property. All that is required are ParameterAssertions for each
+parameter employed by the model embedded in the ModelAssertion. We
+call this interval of possible values for P the <i>prediction
+interval</i> for the ModelAssertion. The size of this interval
+reflects the uncertainty in the value of P.</p>
+
+<p>It should be intuitively clear that if there is a great deal of
+uncertainty in each parameter (i.e., the ranges described by each
+ParameterAssertion are large), the prediction interval may be large as
+well. Uncertainty in the parameters may be reduced by studying them
+directly in isolation, or by adding observational data on the system
+itself. Notice that in this example, reducing the uncertainty in the
+parameters by studying them in isolation would require disassembling
+the system. Often such a procedure is impractical or even
+impossible.<p>
+
+<p>We will now use the toolbox to form a prediction interval for the
+peak displacement when the mass-spring-damper system is initially at
+rest and a 2N force is applied to the mass. This property is
+abbreviated peakDis2N. To demonstrate the benefit of observational
+data, we will perform two separate predictions. First we will use only
+the existing ParameterAssertions. Then we will incorporate the
+DatasetUnits for the three existing experimental observations into
+the analysis to hopefully reduce our uncertainty in peakDis2N.</p>
+
+<p>A ModelAssertion object for the peakDis2N is
+generated by the command
+
+<pre class="codeinput">
+MA_peakDis2N = ModelAssertion(@msdLinearModel,<span class="string">'peakDis'</span>,2);
+</pre>
+
+Notice that we were able to reuse the dcModel mfile created previously
+by supplying a different input force as the third input to the
+ModelAssertion constructor.</p>
+
+The prediction interval is computed by calling the <a
+href="../../../html/Prediction.html">Prediction</a> constructor with
+the command
+
+<pre class="codeinput">
+Prediction(ModelAssn,Dset,opt)
+</pre>
+
+where <code>ModelAssn</code>, is a ModelAssertion object,
+<code>Dset</code> is a Dataset object containing the assertions used
+to constrain the prediction interval, and <code>opt</code> is a
+DCOptions object. To execute the prediction using only the
+ParameterAssertions, we build a Dataset object containing only these
+assertions with the command
+
+<pre class="codeinput">
+D_onlyPA = Dataset({},[PA1;PA2;PA3]);
+</pre>
+
+and perform the prediction with the command
+
+<pre class="codeinput">
+Prediction(MA_peakdis2N,D_onlyPA,opt);
+</pre>
+
+After approximately one minute of computation, the last command
+produces the displayed output
+
+<pre class="codeoutput">
+=====Final Bounds=====
+UBo: 7.3536
+UBi: 7.3467
+LBi: 1.35
+LBo: 1.3457
+</pre>
+
+These values indicate bounds on the prediction interval. The <i>inner
+bounds</i> </code>LBi</code>, <code>UBi</code> indicate parameter
+values were found that achieve <code>LBi</code> and <code>UBi</code>,
+so the prediction interval is at least <nobr>[1.35,
+7.3467]</nobr>. The <i>outer bounds</i> <code>LBo</code>,
+<code>UBo</code> imply the prediction interval is contained in
+<nobr>[1.3457, 7.3536]</nobr>.
+
+<p> We can decrease the uncertainty in peakDis2N (i.e., the size of
+the prediction interval) by including the existing observations in the
+analysis. This is performed by performing the prediction based on the
+full Dataset <code>D</code> developed previously with the command
+
+<pre class="codeinput">
+Prediction(MA_2N_peak,D,opt);
+</pre>
+
+which produces the displayed output
+
+<pre class="codeoutput">
+=====Final Bounds=====
+UBo: 4.1221
+UBi: 4.0342
+LBi: 3.2476
+LBo: 3.1782
+</pre>
+
+We see that the addition of the observations has reduced the interval
+by roughly a factor of six.</p>
+
+<h2>5. Consistency Analysis Incorporating peakDis2N<a name="5"></a></h2>
+
+<p>
+The prediction results indicate the assertions imply peakDis2N is no
+larger than 4.13 m. However, since the ModelAssertions were based on a
+hypothesized mode that may be incomplete, this conclusion may not
+actually hold. We now consider observational data obtained with a 2N input
+force.
+
+<p><img src="trueSystem2N.jpg" alt="MATLAB FIGURE" border=0 align=bottom></p>
+
+<p>From this time-series, our experimentalist concludes that the peak
+displacement is 4.54 +/- 0.2 m. This is a larger value than the
+prediction analysis indicated was possible, so we have a
+conflict. Alternatively this may be demonstrated by adding this new
+observation our existing Dataset <code>D</code>, and assessing its
+consistency. This is accomplished with the commands
+
+<pre class="codeinput">
+EA_peakDis2N = ExperimentAssertion(4.54,0.2);
+Unit4 = DatasetUnit(EA_peakDis2N,MA_peakDis2N,'peakDis2N');
+newD = addUnit(D,Unit4);
+ConsistTest(newD,opt);
+</pre>
+
+producing the output
+
+<pre class="codeoutput">
+UB: -0.38775
+LB: -0.50193
+=====The Dataset is Inconsistent=====
+</pre>
+
+Since the Dataset is inconsistent, it must contain at least one
+incorrect assertion. Of course we know that the problem lies with the
+misspecified model, but the experimentalist does not. 
+
+However, he does know that the linear model, which explains the data
+taken with a 1N applied force quite well, underpredicts the peak
+displacement for the larger force when it is constrained by the 1N
+force data. Additionally, since the prediction for peakDis2N using
+only the ParameterAssertions contains the observed value of 4.54+/-0.2
+m, he knows the linear model can explain the data taken with a 2N
+applied force as well. The problem arises when these data are analyzed
+jointly. From this, it is not a big stretch to suppose he might
+surmise that a nonlinearity is present in the system, and more
+specifically, that the use of a nonlinear softening spring in the
+model will remedy the underprediction of peakDis2N. In fact, as
+discussed in the Appendix, the data used in this example was obtained
+by simulations of just such a nonlinear model.
+
+</p>
+
+<h2>6. Concluding Remarks<a name="6"></a></h2>
+
+<p>We began this example by examining data taken by applying a 1N
+force to a mass-spring-damper system. We saw that the initial data was
+insufficient to invalidate a linear model. This was accomplished by
+establishing the consistency of a Dataset incorporating both the
+observations and the linear model. We then used this Dataset to
+predict the peak displacement that would be observed if the system was
+acted upon by a larger (2N) force.</p>
+
+<p>The first prediction of the 2N peak displacement was conditioned on
+only the linear model and assumptions about the range of its
+parameters. Then we performed the prediction again including the
+available data. We saw that adding the data reduced our uncertainty in
+the prediction considerably. However, when we obtained displacement
+data using a 2N input force, we found that this data was greater than
+what the prediction said was possible. The conflict between the
+prediction results and the new data indicated that a flaw existed in
+either the uncertainty assumed for the observations, the linear system
+model, or the bounds assigned to the linear model's parameters. </p>
+
+<h2>7. Appendix<a name="7"></a></h2>
+
+<p>To be added.</p>
+
+<hr>
+
+<table class="nav" border=0 width="100%" cellpadding=0 cellspacing=0>
+<tr valign=top>
+<td align=left width=25>
+<a href="../../../docs/html/demo4.html"><img src="../../../docs/html/images/b_prev.gif" alt="Previous page" border=0 align=bottom></a>&nbsp;
+</td>
+<td align=left>Demo4: General Models</td>
+<td>&nbsp;</td>
+<td align=right>Chemical Reaction Network Example</td>
+<td align=right width=25>
+<a href="../../../docs/html/chemexample.html"><img src="../../../docs/html/images/b_next.gif" alt="Next page" border=0 align=bottom></a>
+</td>
+</tr>
+</table>
+
+<br>
+<p class="copy">&copy; 2007 Ryan Feeley</p>
+</body>
+</html>
+
+

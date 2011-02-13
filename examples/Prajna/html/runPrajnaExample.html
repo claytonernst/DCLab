@@ -1,0 +1,156 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Toy Example from Stephen Prajna</title><meta name="generator" content="MATLAB 7.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2011-01-21"><meta name="DC.source" content="runPrajnaExample.m"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>Toy Example from Stephen Prajna</h1><!--introduction--><p>The following is a modified example presented by Stephen Prajna at the 2003 IEEE Conference on Decision and Control.</p><p>Consider a system with the goverening differential equation:</p><p><img src="runPrajnaExample_eq76591.png" alt="$$\dot{z}(t)=-p_{1}z(t)^{3}$$"></p><p>From prior information we know</p><p><img src="runPrajnaExample_eq17659.png" alt="$$0.5<=p_{1}<=2$$"></p><p>And we have measurements of <tt>z</tt> at three times:</p><p><img src="runPrajnaExample_eq76399.png" alt="$$z(0) \in [0.3, 1.1],&#xA;z(2) \in [0.55, 0.65],&#xA;z(4) \in [0.2, 0.3]$$"></p><p>To formulate this problem we shall take <tt>p1</tt> and <tt>z(0)</tt> as our two parameters.  There are two model files in the example folder called <tt>prajModel1</tt> and <tt>prajModel2</tt>.  Both files solve for z(t).  The first returns the value at time 2, the second at time 4.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Building the Parameter Domain</a></li><li><a href="#2">Generate ResponseModel and ResponseObservation objects</a></li><li><a href="#3">Build Dataset</a></li><li><a href="#4">Invalidation</a></li></ul></div><h2>Building the Parameter Domain<a name="1"></a></h2><p>First we build our parameter domain by building two ParameterDomain objects, then vertically concatenating them.</p><pre class="codeinput"><span class="comment">%p1 = FreeParameter('p',1.3,0.8);</span>
+<span class="comment">%p2 = FreeParameter('x0',0.7,0.4);</span>
+p1 = FreeParameter(<span class="string">'p'</span>,1.5,1.25);
+p2 = FreeParameter(<span class="string">'x0'</span>,1.5,1.25);
+P = [p1;p2]
+</pre><pre class="codeoutput">Undefined function or method 'FreeParameter' for input arguments of type 'char'.
+
+Error in ==&gt; runPrajnaExample at 29
+p1 = FreeParameter('p',1.5,1.25);
+</pre><h2>Generate ResponseModel and ResponseObservation objects<a name="2"></a></h2><p>Now we create the ResponseModel and ResponseObservation objects.</p><pre class="codeinput">RM1 = ResponseModel(@prajModel,<span class="string">'2'</span>)
+RO1 = ResponseObservation(0.6,0.05)
+RM2 = ResponseModel(@prajModel,<span class="string">'4'</span>)
+RO2 = ResponseObservation(0.25,0.05)
+</pre><h2>Build Dataset<a name="3"></a></h2><p>Now we build the Dataset units by pairing models and experiments.  We can then vertically concatenate the units to form our dataset.</p><pre class="codeinput">Pair1 = ModelAndObservationPair(RO1,RM1,<span class="string">'x(t1) with Prajna example'</span>);
+Pair2 = ModelAndObservationPair(RO2,RM2,<span class="string">'x(t2) with Prajna example'</span>);
+Dset = DCDataset([Pair1; Pair2],P)
+</pre><h2>Invalidation<a name="4"></a></h2><p>Prajna showed this dataset to be invalid.  So we should find a negative consistency measure.</p><pre class="codeinput">opt1 = DCOptions(<span class="string">'display'</span>,<span class="string">'iter'</span>,<span class="string">'fitConvergenceTol'</span>,0.1,<span class="string">'maxBranchBoundIter'</span>,10);
+
+<span class="comment">%metamodel modes are no longer supported</span>
+<span class="comment">%opt2 = DCOptions('display','iter','fitConvergenceTol',0.1,'maxBranchBoundIter',3,'analysisMode','metamodelBasedA');</span>
+<span class="comment">%opt3 = DCOptions('display','iter','fitConvergenceTol',0.1,'maxBranchBoundIter',3,'analysisMode','metamodelBasedB');</span>
+
+CMObj = ConsistencyTest(Dset,opt1);
+
+<span class="comment">%opt = DCOptions('display','iter','tol',0.1,'maxBranchBoundIter',6,'trans',{'linXlinY';'logXlinY'},'constraints',[1 1 0 0]);</span>
+<span class="comment">%[LB, UB] = ConsistTest(Dset,opt)</span>
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.11<br></p></div><!--
+##### SOURCE BEGIN #####
+%% Toy Example from Stephen Prajna
+% The following is a modified example presented by Stephen Prajna at the
+% 2003 IEEE Conference on Decision and Control.
+%
+% Consider a system with the goverening differential equation:
+%
+% $$\dot{z}(t)=-p_{1}z(t)^{3}$$
+%
+% From prior information we know
+%
+% $$0.5<=p_{1}<=2$$
+%
+% And we have measurements of |z| at three times:
+%
+% $$z(0) \in [0.3, 1.1], 
+% z(2) \in [0.55, 0.65], 
+% z(4) \in [0.2, 0.3]$$
+%
+% To formulate this problem we shall take |p1| and |z(0)| as our two
+% parameters.  There are two model files in the example folder called
+% |prajModel1| and |prajModel2|.  Both files solve for z(t).  The first
+% returns the value at time 2, the second at time 4.
+
+%% Building the Parameter Domain
+% First we build our parameter domain by building two ParameterDomain
+% objects, then vertically concatenating them.
+%p1 = FreeParameter('p',1.3,0.8);
+%p2 = FreeParameter('x0',0.7,0.4);
+p1 = FreeParameter('p',1.5,1.25);
+p2 = FreeParameter('x0',1.5,1.25);
+P = [p1;p2]
+
+%% Generate ResponseModel and ResponseObservation objects
+% Now we create the ResponseModel and ResponseObservation objects.
+RM1 = ResponseModel(@prajModel,'2')
+RO1 = ResponseObservation(0.6,0.05)
+RM2 = ResponseModel(@prajModel,'4')
+RO2 = ResponseObservation(0.25,0.05)
+
+%% Build Dataset
+% Now we build the Dataset units by pairing models and experiments.  We can
+% then vertically concatenate the units to form our dataset.
+Pair1 = ModelAndObservationPair(RO1,RM1,'x(t1) with Prajna example');
+Pair2 = ModelAndObservationPair(RO2,RM2,'x(t2) with Prajna example');
+Dset = DCDataset([Pair1; Pair2],P)
+
+%% Invalidation
+% Prajna showed this dataset to be invalid.  So we should find a negative
+% consistency measure. 
+
+opt1 = DCOptions('display','iter','fitConvergenceTol',0.1,'maxBranchBoundIter',10);
+
+%metamodel modes are no longer supported
+%opt2 = DCOptions('display','iter','fitConvergenceTol',0.1,'maxBranchBoundIter',3,'analysisMode','metamodelBasedA');
+%opt3 = DCOptions('display','iter','fitConvergenceTol',0.1,'maxBranchBoundIter',3,'analysisMode','metamodelBasedB');
+
+CMObj = ConsistencyTest(Dset,opt1);
+
+%opt = DCOptions('display','iter','tol',0.1,'maxBranchBoundIter',6,'trans',{'linXlinY';'logXlinY'},'constraints',[1 1 0 0]);
+%[LB, UB] = ConsistTest(Dset,opt)
+
+##### SOURCE END #####
+--></body></html>

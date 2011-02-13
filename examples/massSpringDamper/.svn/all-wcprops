@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/55/DClabV2/examples/massSpringDamper
+END
+runMSDExample.m
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svnroot/collab-sci/!svn/ver/55/DClabV2/examples/massSpringDamper/runMSDExample.m
+END
+underOverPlot.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/massSpringDamper/underOverPlot.m
+END
+simTrueSystem.m
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/massSpringDamper/simTrueSystem.m
+END
+msdLinearModel.m
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svnroot/collab-sci/!svn/ver/55/DClabV2/examples/massSpringDamper/msdLinearModel.m
+END

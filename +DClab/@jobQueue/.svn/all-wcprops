@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue
+END
+display.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/display.m
+END
+jobinfo.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/jobinfo.m
+END
+jobtime.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/jobtime.m
+END
+isold.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/isold.m
+END
+findjob.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/findjob.m
+END
+isrunning.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/isrunning.m
+END
+isfree.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/isfree.m
+END
+createjob.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/createjob.m
+END
+jobstatus.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/jobstatus.m
+END
+jobQueue.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/jobQueue.m
+END
+clean.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@jobQueue/clean.m
+END

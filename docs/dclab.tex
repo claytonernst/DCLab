@@ -1,0 +1,888 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage[bottom=1in,top=1in,left=1in,right=1in]{geometry}
+
+\begin{document}
+
+\title{Data Collaboration Toolbox v2.0}
+\maketitle
+
+The Data Collaboration toolbox is a free, open-source software package for the MATLAB programming 
+environment for non-stochastic uncertainty quantification using predictive models 
+and experiment data.  The software is available at http://collab-sci.sourceforge.net/  
+
+The software allows a user to enter experiment data with 
+uncertainty along with a corresponding parameterized model.  These combine to 
+constrain a set of feasible parameter values that match the data and model. 
+Questions about this feasible set of parameters, such as whether it is nonempty 
+(consistency) and what the range of values a given predictive model can take 
+over the set (response prediction), are posed as constrained optimization 
+problems.
+
+The techniques utilized in Data Collaboration (DC) are those described in several journal articles.  
+\begin{enumerate}
+\item M. Frenklach, A. Packard, and P. Seiler. Prediction uncertainty from models and data.
+In Proc. American Control Conference, pages 4135--4140, 2002.
+\item M. Frenklach, A. Packard, P. Seiler, and R. Feeley. Collaborative data processing in
+developing predictive models of complex reaction systems. International Journal of
+Chemical Kinetics, 36(1):57--66, 2004.
+\item R. Feeley, P. Seiler, A. Packard, and M. Frenklach. Consistency of a reaction dataset.
+Journal of Physical Chemistry A, 108(44):9573--9583, October 2004.
+\item R. Feeley, M. Frenklach, M. Onsum, T. Russi, A. Arkin, and A. Packard. Model discrimination
+using data collaboration. Journal of Physical Chemistry A, 110(21):6803--6813, March 2006.
+\item P. Seiler, M. Frenklach, A. Packard, and R. Feeley. Numerical approaches for collaborative
+data processing. Optimization and Engineering, 7(4):459--478, December
+2006.
+\item T. Russi, A. Packard, R. Feeley, and M. Frenklach. Sensitivity analysis of uncertainty
+in model prediction. Journal of Physical Chemistry A, 112(12):2579--2588, February
+2008.
+\end{enumerate}
+
+This document is designed to act both as a manual for the use of the toolbox, as 
+well as providing some high-level description of the underlying algorithms. Each 
+section describes either the creation of some objects or an algorithm. 
+If you feel you would like to jump right in, we suggest you first read the
+requirements and downloading/installation instructions in 
+Sections~\ref{sec.dclab.requirements} and~\ref{sec.dclab.download}.  After that skip to the examples 
+in Section~\ref{sec.dclab.examples}.
+
+
+\section{Requirements}
+\label{sec.dclab.requirements}
+
+\begin{itemize}
+\item {\bf ``Any'' computer operating system}: DC has been tested on machines running Windows XP, Windows Vista x86 (32-bit), Windows Vista x64 (64-bit), and Ubuntu.  In principle, it should run on any fairly new desktop or laptop computer that can run MATLAB.
+\item {\bf MATLAB release 2008a or later}  
+\item {\bf Optimization toolbox for MATLAB}
+\item {\bf SeDuMi optimization package}:  SeDuMi is a free MATLAB toolbox for self-dual minimization.  DC provides version 1.21, but you may use another version if you like.  DC has been tested with SeDuMi versions 1.1 and 1.21.
+\end{itemize}
+
+%requirements
+
+\section{Download and Installation}
+\label{sec.dclab.download}
+
+To download the software, 
+\begin{enumerate}
+\item Visit the project home page at http://collab-sci.sourceforge.net/
+\item Click the ``Download Page'' link.
+\item Click the large green button that says ``Download Now!''
+\item Depending on your internet browser's preferences, you will either be prompted to choose a location, or the zip-file will be saved to your default download folder.
+\end{enumerate}
+
+Once the download is complete, unzip the file to a convenient location (e.g. 
+your default MATLAB working directory).  To unzip a file you need a zip 
+decompression program.  For windows, we recommend the free utility, 7zip, 
+available at http://www.7zip.com/.  For linux/unix, there may already be a 
+utility installed called gzip.
+
+Inside the main folder are several subdirectories and a few files.  One of these 
+files is named ``DCsetup.m,'' a MATLAB script for setting path directories and 
+importing the main package.  From the MATLAB command prompt run the script:
+\begin{verbatim}
+>> DCsetup
+\end{verbatim}
+This will add the necessary directories to the current MATLAB path.  It will also import the {\tt +DClab} package.  This setup script should be executed from the main DC directory each time you start MATLAB if you wish to use the DC toolbox.  This script can be executed from a startup file.
+
+All of the main DC methods and objects have the prefix {\tt DClab.}, but this 
+import will make it such that using this prefix will be unnecessary.  If you wish 
+to use DC objects and methods inside of a function or custom class, you either 
+need to include the {\tt DClab.} prefix, or use the command
+\begin{verbatim}
+import DClab.*
+\end{verbatim}
+at the top of each file.  This command is in the ``DCsetup'' file, but that only will import the package for the base workspace.  For more information, see MATLAB documentation on packages.  Throughout this documentation, we will not use the prefix for the sake of simplicity.
+
+To test the directory setup, run the test script from the MATLAB command prompt
+\begin{verbatim}
+>> dctest
+\end{verbatim}
+This will take a minute or two.  One issue you may run into the first time you run the package is that the SeDuMi mex-files may need to be recompiled.  This is only necessary one time.
+
+If the test script gives an error regarding SeDuMi, change the current directory in MATLAB to the ``SeDuMi\_1\_21'' directory in the DC toolbox main directory.  From the command prompt type
+\begin{verbatim}
+>> mex -setup
+\end{verbatim}
+and select a c-compiler of your choice.  For 32-bit operating systems, MATLAB ships with the free compiler lcc.  If no compiler is shown, you may need to get a c-compiler.  Please consult the MATLAB documentation for supported c-compilers.  Once the compiler is chosen, type the following at the command prompt
+\begin{verbatim}
+>> install_sedumi
+\end{verbatim}
+This will take a few minutes.  Once complete, change back to the main DC directory and re-run dctest.  Note: if the test script worked the first time, you should not have to reinstall sedumi.
+
+
+%whats in the folder
+%DCsetup
+%run test
+%maybe compile SeDuMi
+
+
+
+%download/installation
+
+
+\section{Version 2.0}
+
+The software has changed significantly from the previous release (1.0) to this 
+version (2.0).  Most notably almost all of the object names has changed. 
+Section~\ref{sec.dclab.conversion} provides a table to help you convert your own 
+code to the names.  
+
+There are many changes to the underlying methods, and some ways that you can 
+interact with the software (e.g. the ability to define multiple features from a 
+single simulation file).  All these are described in this document.
+
+
+%Version  history
+
+
+%Setup
+%  DCSetup
+%  Either using full system names, or import (what should you do in this document?)
+
+
+
+
+\section{Dataset Formulation}
+\label{sec.dclab.dataset}
+
+The Data Collaboration Dataset is a collection of parameterized models, 
+associated experiment observations, and constraints on the individual 
+parameters.  Let $Y_e$ be some scalar observable.   Model $M_e$ predicts the 
+value of the observable as a function of $n$ unknown parameters.  Each parameter 
+$x_i$ has a set of prior knowledge bounds $\alpha_i$ and $\beta_i$ such that 
+$\alpha_i\le x_i\le \beta_i$.  Also associated with each observable is an 
+experimental measurement $d_e$ with lower and upper bound uncertainty $l_e$ and 
+$u_e$ such that the value of the observable $y_e$ is bounded as $l_e\le y_e-d_e 
+\le u_e$.  All this information collected together for $m$ observables 
+($e=1,\dots,m$) is known as a dataset.
+
+The following few sections describe how to build up these objects in the DC 
+software. 
+
+\subsection{Listing of FreeParameters}
+
+The FreeParameter class describes objects associated with the model parameters.
+\begin{verbatim}
+>> fp = FreeParameter(NAME,RANGE);
+\end{verbatim}
+creates a FreeParameter object.  {\tt NAME} is a char array denoted the parameter's name (each parameter should have a unique name) and {\tt RANGE} is a 1x2 numeric array denoted the lower and upper limits of the parameters value.
+\begin{verbatim}
+>> fp = FreeParameter(NAME,NOMINAL,UNCERTAINTY);
+\end{verbatim}
+creates a FreeParameter object, using a nominal value with uncertainty.  {\tt NOMINAL} is a scalar value.  {\tt UNCERTAINTY} can be a scalar such that the parameter is in the range {\tt NOMINAL+/-UNCERTAINTY}, or it can be a 1x2 numeric array so that the parameter is in the range {\tt [NOMINAL+UNCERTAINTY(1), NOMINAL+UNCERTAINTY(2)]}.  Uncertainty can also be specified relatively or with log transformations.  The behavior of these types of uncertainty specification are not as stable, however.   If you are interested, read the command line help for the FreeParameter object.
+
+The FreeParameter objects can be stacked into vertical arrays.  If you would like to create the FreeParameters using a for-loop, you can pre-allocate empty FreeParameter arrays.  For example,
+\begin{verbatim}
+>> fps = FreeParameters(5);
+\end{verbatim}
+initializes a 5x1 FreeParameter object array.  This can then be filled using one of the above syntaxes.  For example,
+\begin{verbatim}
+>> fps(1) = FreeParameter('param1',[3 10]);
+\end{verbatim}
+
+
+\subsection{ResponseObservations}
+
+The observation of some scalar value of interest (the observable) related to an 
+experimental response is formulated as a ResponseObservation object.
+\begin{verbatim}
+>> ro = ResponseObservation(VALUE,UNCERTAINTY);
+\end{verbatim}
+{\tt VALUE} is a numeric scalar representing the measured observation.  {\tt UNCERTAINTY} can either be a scalar or a 1x2 double.  If it is a scalar, then the assertion is that the observable {\tt y} is constrained as {\tt $|$ y - VALUE $|\le$ UNCERTAINTY}.  If {\tt UNCERTAINTY} is a 1x2 double then the assertion is that {\tt UNCERTAINTY(1) $\le$ y - VALUE $\le$ UNCERTAINTY(2)}.   {\tt UNCERTAINTY} can also be denoted as relative or with log transformations, but as with the FreeParameter object, we suggest you use the above syntax.
+
+
+\subsection{ResponseModels}
+
+A response model is an algebraic function or simulation code that maps a vector 
+of fixed parameter values to the scalar observable of the simulation response. 
+For example, if the model simulates some response over time, the scalar 
+observable may be the maximum value, or the rise-time to the peak value.  Each 
+model represents a different observable.  The model does not necessarily depend 
+on all FreeParameters, but it does depend on a subset of them.
+
+There are two main types of ResponseModel objects that can be created.  The first is an algebraic model; specifically, it is an affine or quadratic function of the parameters.  The second is a general simulation model.  Their creation is outlined in the next two sections.
+
+\subsubsection{Linear or Quadratic Models}
+
+\begin{verbatim}
+>> rm = ResponseModel(COEFFS,MODELDOMAIN);
+\end{verbatim}
+creates an algebraic ResponseModel object.  
+
+{\tt MODELDOMAIN} is an $N$x1 struct array with two fields, {\tt name} and {\tt 
+range}.  $N$ is the number of parameters that this model depends on.  For the 
+$i^{\rm th}$ element of {\tt MODELDOMAIN}, {\tt .name} is a char array, that 
+matches the name of one of the FreeParameter objects and {\tt .range} is the 
+range of this parameter over which the model is valid.  The range must be a 
+superset of the range define in the corresponding FreeParameter object. 
+The {\tt MODELDOMAIN} may only contain parameters described in the FreeParameter objects. 
+The order does not need to correspond to the order of the FreeParameter 
+array in any way.  The order of parameters in {\tt MODELDOMAIN} is the order in 
+which the ResponseModel expects parameters for calculation.
+
+If the ResponseModel is affine, {\tt COEFFS} will be an ($N$+1)x1 numeric array, such that the model corresponds to the form
+\begin{verbatim}
+y = COEFFS'*[1;x];
+\end{verbatim}
+where {\tt x} is a $N$x1 vector of parameters in the same order as {\tt MODELDOMAIN}.
+
+If the ResponseModel is quadratic, {\tt COEFFS} will be an ($N$+1)x($N$+1) symmetric numeric array, such that the model corresponds to the form
+\begin{verbatim}
+y = [1 x']*COEFFS*[1;x];
+\end{verbatim}
+where {\tt x} is a $N$x1 vector of parameters in the same order as {\tt MODELDOMAIN}.  This is the same as
+\begin{verbatim}
+y = COEFFS(1,1) + 2*COEFFS(1,2:end)*x + x'*COEFFS(2:end,2:end)*x;
+\end{verbatim}
+
+The ResponseModel can also be specified with output uncertainty/error as
+\begin{verbatim}
+>> rm = ResponseModel(COEFFS,MODELDOMAIN,OUTPUTUNC);
+\end{verbatim}
+If the algebraic form is a surrogate fit, then {\tt OUTPUTUNC} may be the 
+fitting error.  For example, this would be the peak fitting error over the model domain when the 
+algebraic model is a low-order approximation to a more detailed model. 
+{\tt OUTPUTUNC} should be a scalar if the uncertainty in the model output is 
+symmetric. If it is asymmetric this should be a 1x2 vector, with {\tt OUTPUTUNC(1) <= 
+eta(x) - M(x) <= OUTPUTUNC(2)}, where {\tt M(x)} is the algebraic model and {\tt eta(x)} is 
+the true model.
+
+
+\subsubsection{Models Using Simulation m-files}
+
+\begin{verbatim}
+rm = ResponseModel(MODELHANDLE);
+\end{verbatim}
+creates a response model given the function handle {\tt MODELHANDLE}.  It is also possible to create a ResponseModel object with some additional inputs.
+\begin{verbatim}
+rm = ResponseModel(MODELHANDLE,ADDLINPUT1,...,ADDLINPUT2);
+\end{verbatim}
+
+The function that is pointed to by {\tt MODELHANDLE} has a special form.  The 
+easiest way to learn this form is to use the template file ``dcModel.m'' found 
+in the ``fileTemplates'' subdirectory of the main DC directory.  If {\tt MODELHANDLE} is {\tt @myModel}, then the first line of ``myModel.m'' is 
+\begin{verbatim}
+function out = myModel(flag,paramMatrix,varargin)
+\end{verbatim}
+or something similar.  This function not only needs to return evaluations of a set of parameter values, but also return information about the function.  This first input, {\tt flag}, will be a char array denoting the information requested by the toolbox's methods.  The following list summarizes possible inputs for {\tt flag}, and what the corresponding output needs to be.
+
+\begin{description} \item[\tt 'simulate'] (Required) The input {\tt paramMatrix} will be an 
+$N$x$L$ matrix ($N$ is the number of parameters for the model and $L$ the number 
+of points) where each column represents one parameter vector.  The output should 
+be a 1x$L$ array of values.
+
+\item[\tt 'getModelDomain'] (Required) This should return a $N$x1 structure with 
+fields {\tt .name} and {\tt .range} corresponding to the parameters used by the 
+model in the order it expects them.  See the description above for the case when 
+the ResponseModel is created with an algebraic form.
+
+\item[\tt 'isSavedEnabled'] (Optional, default=false) This should return either 
+true or false.  If true, evaluations of this model are saved in the 
+``savedEvaluations'' subdirectory of the main DC directory.
+
+\item[\tt 'isMultipleResponsesEnabled'] (Optional, default=false) This should 
+return either true or false. If true, then this single file returns multiple 
+responses (or features) for each simulation.  If there are $p$ responses then 
+the output in the {\tt 'simulate'} case should have dimension $p$x$L$. 
+Additionally, a response list must be defined as in the next flag.  We very highly 
+recommend that this feature only be used when {\tt 'isSavedEnabled'} is set to 
+true.
+
+\item[\tt 'getResponseList'] (Required if {\tt 'isMultipleReponsesEnabled'} is  
+true) This case returns a $p$x1 cell array chars.  Each entry corresponds to the 
+one-word name of one of the features.  This should be in the same order as 
+returned by the {\tt 'simulate'} case.
+
+\item[\tt 'getName'] (Optional, default=filename) If the model can be different 
+depending on the additional inputs then this lets you define a character array 
+(string) that will be used to name files when saving points.  Note: if {\tt 
+'isMultipleResponseEnabled'} is true this should NOT reflect a specific feature. 
+Feature names are handled automatically.  This name can depend on the other 
+input arguments to this function as they are passed in when getting this string.
+
+\end{description}
+
+There are a few other possible flags, that are optional, and described in the 
+template file.  You do not need to provide output for the optional flags, the 
+toolbox will catch any errors when requesting this information, and assume 
+defaults.  The additional inputs are passed in to the function each time, so 
+they may be used to determine the model domain structure, or name (for example).
+
+
+When multiple features is enabled, each feature gets its own ResponseModel 
+object, even though they share an m-file.  In this case, the first additional 
+input will be the char array specifying the feature.  For example, imagine a 
+model simulated by ``car.m'' based on various driving and road conditions.  It 
+has two features we're interested in, {\tt 'top\_speed'} and {\tt 'mileage'}. 
+Then the two response models would be created via
+\begin{verbatim}
+>> rm1 = ResponseModel(@car,'top_speed');
+>> rm2 = ResponseModel(@car,'mileage');
+\end{verbatim}
+
+How the m-file simulates the model is entirely up to you.  It can run basic 
+MATLAB code.  It can call other files.  If you have the means for MATLAB to call 
+another language (e.g. C-code via MATLAB's mex interface), the simulation can be in that other 
+language.  You can even use it to parallelize the simulation at the various 
+parameter vectors.  So all this m-file is, is a MATLAB wrapper file for whatever 
+simulation code you would like to use.
+
+
+
+
+
+
+
+\subsection{DCDataset}
+
+The last few steps in creating a dataset, is to pair up the ResponseObservation 
+objects with their corresponding ResponseModel objects and putting everything 
+together with the FreeParameters.
+
+First, for each observable, create a ModelAndObservationPair object.
+\begin{verbatim}
+>> mop = ModelAndObservationPair(RO,RM,NAME);
+\end{verbatim}
+where {\tt RO} is a ResponseObservation object, {\tt RM} is a ResponseModel object, and {\tt NAME} is a char array.  These objects should be vertically concatenated into a ModelAndObservationPair array.  If these objects are being created in a for-loop, you can pre-allocate the array using the syntax
+\begin{verbatim}
+>> mops = ModelAndObservationPair(m);
+\end{verbatim}
+which will create an $m$x1 array.
+
+Once an $m$x1 ModelAndObservationPair array {\tt mops} and a $n$x1 FreeParameter array {\tt fps} have been created, a DCDataset object can be formed.
+\begin{verbatim}
+>> dset = DCDataset(mops,fps);
+\end{verbatim}
+This object is the basis for all further analysis.
+
+To create a dataset with no model/experiment data, simply create an empty ModelAndObservationPair by using the constructor with no inputs.
+\begin{verbatim}
+>> dset = DCDataset(ModelAndObservationPair,fps);
+\end{verbatim}
+
+
+
+
+
+
+
+
+\section{Surrogate Model Formulation}
+
+During the calculation of the consistency measure and response prediction (see 
+\S\ref{sec.dclab.consispred}) and parameter optimization (see 
+\S\ref{sec.dclab.paramoptim}), for each ResponseModel that is not quadratic (or 
+affine) the DC toolbox generates a quadratic surrogate model.  This happens 
+automatically.  The subdivision of the prior knowledge parameter domain will be 
+discussed in Section~\ref{sec.dclab.bnb}.  This section discusses how a 
+quadratic is fit for each ResponseModel on each subdomain.
+
+Surrogate models and all fitting information is stored in a PolyDataset object, 
+which inherits from the DCDataset class.
+
+\subsection{Active Parameters and Parameter Transformations}
+
+Before the surrogate fit is made, some evaluations of the ResponseModel are made 
+to help determine ``active'' parameters.  These are the parameters which are 
+most essential to the change in the ResponseModel's output.  Those parameters 
+that are considered not active, are set at their nominal values and then ignored 
+(the surrogate fit will not depend on them).  This can reduce fitting time, as 
+less evaluations are needed to make a fit, but will potentially add fitting 
+error.
+
+Also to improve fit accuracy, the quadratic surrogate may have a logarithmic 
+dependence on some of its parameters, meaning the surrogate depends on the 
+$\log_{10}$ of some parameters.  Which parameters are chosen to be log can be 
+determined automatically.
+
+
+\subsection{Iterative Fitting Algorithm for Surrogate Convergence}
+\label{sec.dclab.iterative}
+
+On the current subdomain, a quadratic might fit quite poorly.  The fit will 
+eventually be improved through a branch and bound algorithm.  However, straight 
+assessment of the fitting error will not gage whether this fit is the best possible 
+quadratic fit.  The iterative fitting algorithm continues to add samples to the 
+regression, until the quadratic fit stops changing.  When the surrogate has 
+``settled,'' errors are assessed.
+
+Two quadratic forms $Q_1$ and $Q_2$ are compared over the domain $\mathcal{H}$ by evaluating the normalized deviation between the functions
+\begin{align*}
+\text{deviation} = \frac{ \displaystyle\int_\mathcal{H} Q_1(\mathbf{x}) - Q_2(\mathbf{x}) \;d\mathbf{x}}{ \displaystyle\int_\mathcal{H} Q_2(\mathbf{x})\; d\mathbf{x}}
+\end{align*}
+If the deviation has not met a tolerance, then more points are added to the regression to create a new fit.
+
+
+\subsection{Evaluation Storage for Rapid Restarts}
+
+When the {\tt 'isSavedEnabled'} flag of an m-file based ResponseModel is set to 
+true, then evaluations of that model are stored in the ``savedEvaluations'' 
+subdirectory of the main DC directory.  When a single m-file produces multiple 
+responses, then all responses are saved, even if only one of them is the current 
+response being fitted.
+
+Suppose that an m-file produces multiple responses and evaluations are flagged for 
+saving.  When the surrogate model is generated for the ResponseModel associated 
+with one of the responses, all responses are saved to the hard disk. 
+Subsequently, when the ResponseModel for another response is generated, the 
+points are loaded from the disk, thereby reducing, and possibly eliminating the 
+need for further evaluation of that m-file.
+
+If the computation is restarted, any saved evaluations can be reused for 
+fitting.  Thus reducing the computation for creating surrogate fits from 
+scratch.  This also provides a pseudo-backup for power outages and system 
+crashes that occur during long computations.
+
+{\bf WARNING:}  If at any point, the simulation files are changed, you need to 
+make sure to clear all saved files.  This can be done by either deleting the 
+files in the ``savedEvaluations'' subdirectory (and NOT the 
+``savedEvaluationsDir.m'') or by using a method:
+\begin{verbatim}
+>> deleteSavedEvaluations(dset);  %clears evaluations 
+                                  %for a DCDataset
+>> deleteSavedEvaluations(rm);    %clears evaluations 
+                                  %for a single ResponseModel
+\end{verbatim}
+
+%warning about clearing!
+
+
+
+
+\subsection{Fitting Error Approximation}
+
+Once a quadratic surrogate has been generated, the maximum fitting error over 
+the domain is estimated.  This is done with a combination of determining the 
+error of the fit points and validation points and via local searches with {\tt 
+fmincon}.  The maximum error found from these three methods is then added to the 
+ResponseObservation error to get the total error for a ModelAndObservationPair.
+
+
+
+
+
+
+\section{Response Prediction and Consistency Measure Calculations}
+\label{sec.dclab.consispred}
+
+Once a DCDataset has been created a consistency analysis can be performed by creating ConsistencyTest object.
+\begin{verbatim}
+>> ctestObj = ConsistencyTest(dset);
+\end{verbatim}
+This calculates the {\bf relative} consistency measure, $\mathrm{C}_\mathcal{D}$
+\begin{align*}
+\begin{split}
+\mathrm{C}_\mathcal{D} :=& \max \; \gamma\\
+&\text{s.t. } \left\{\begin{array}{l}
+l_e(1-\gamma)+l_{e,{\rm fit}} \le M_e(\mathbf{x}) -d_e  \le u_e(1-\gamma) + u_{e,{\rm fit}},\;e=1,\dots,m\\
+\mathbf{x} \in \mathcal{H}
+\end{array}\right.
+\end{split}
+\end{align*}
+where $l_e$, $l_{e,{\rm fit}}$, $u_e$, and $u_{e,{\rm fit}}$ are the lower and 
+upper experiment and surrogate fitting errors, $d_e$ is the ModelObservation 
+value, $M_e$ is a ResponseModel, and $\mathcal{H}$ is the bounds defined by the 
+FreeParameter object.  We stress that this is the relative consistency measure, 
+because it was defined in an absolute sense in some of our published work.  If the consistency measure is positive, the dataset is said to be consistent, if the consistency is negative it is inconsistent.  Further, the consistency measure is the percentage that all experiment uncertainty must be reduced in order to achieve consistency.
+
+Likewise, if a DCDataset is constructed, we can make predictions of the range of values that an additional ResponseModel can take over the set of constrained feasible parameters.  This is posed as the creation of a ResponsePrediction object.
+\begin{verbatim}
+>> predObj = ResponsePrediction(rm0,dset);
+\end{verbatim}
+Creating this object solves two optimization problems
+\begin{align*}
+L_0 :=& \min\; M_0(\mathbf{x})\\
+&\text{s.t. } \left\{\begin{array}{l}
+l_e+l_{e,{\rm fit}} \le M_e(\mathbf{x}) -d_e  \le u_e + u_{e,{\rm fit}},\;e=1,\dots,m\\
+\mathbf{x} \in \mathcal{H}
+\end{array}\right.
+\end{align*}
+\begin{align*}
+R_0 :=& \max\; M_0(\mathbf{x})\\
+&\text{s.t. } \left\{\begin{array}{l}
+l_e+l_{e,{\rm fit}} \le M_e(\mathbf{x}) -d_e  \le u_e + u_{e,{\rm fit}},\;e=1,\dots,m\\
+\mathbf{x} \in \mathcal{H}
+\end{array}\right.
+\end{align*}
+where $M_0$ is the function corresponding to the predicted ResponseModel.
+
+Both the consistency and predictions can be customized using a DCOptions object (see \S\ref{sec.dclab.options}).
+\begin{verbatim}
+>> ctestObj = ConsistencyTest(dset,opts);
+>> predObj = ResponsePrediction(rm0,dset,opts);
+\end{verbatim}
+
+In each calculation, quadratic surrogate models are fitted where required, and 
+the problem is formulated as a nonconvex quadratically constrained quadratic 
+program (NQCQP).  Techniques for solving the NQCQP provide both outer and inner 
+bounds on the solutions.
+
+
+
+\subsection{NQCQP Formulation \& Bounding}
+
+After surrogate fitting, the problems are formulated as Nonconvex Quadratically 
+Constrained Quadratic Programs.  Outer bounds (upper bound on a maximization and 
+a lower bound on a minimization) are solved for using what is known as the S-
+procedure.  This formulates the problem as a semidefinite program which is 
+solved with the SeDuMi optimization package. 
+
+Inner bounds (lower bound on a maximization and an upper bound on a 
+minimization) are solved using a call to {\tt fmincon}.  Once an optimal 
+parameter vector is found for the quadratic surrogates, the original model is 
+evaluated to create a true inner bound.
+
+
+\subsection{Certification of Results}
+
+Once computation of the ConsistencyTest object or the ResponsePrediction object is complete, the objects contain a large amount of information regarding the calculation.  This includes, but is not limited to,
+\begin{itemize}
+\item All branching locations for the branch and bound algorithm (see \S\ref{sec.dclab.bnb})
+\item All surrogate fits at each iteration of the branch and bound algorithm, with fitting errors, and number of function evaluations
+\item Bounds on the objective for each subdomain during the branching
+\item Sensitivities of the optimal value to experiment and parameter uncertainty (see \S\ref{sec.dclab.sens}).
+\end{itemize}
+
+The {\tt report} method will generate a report on the calculations in HTML format (which can be viewed with a web-browser) in the current directory.
+\begin{verbatim}
+>> report(ctestObj);
+>> report(predObj);
+\end{verbatim}
+
+The bounds on the consistency measure are retrieved via
+\begin{verbatim}
+>> LB = ctestObj.LB; %lower bound on measure
+>> UB = ctestObj.UB; %upper bound on measure
+\end{verbatim}
+
+The bounds on the response prediction interval are retrieved in a similar fashion.
+\begin{verbatim}
+>> LBo = predObj.LBo; %outer bound on minimum
+>> LBi = predObj.LBi; %inner bound on minimum
+>> UBi = predObj.UBi; %inner bound on maximum
+>> UBo = predObj.UBo; %outer bound on maximum
+\end{verbatim}
+Furthermore, the parameter vectors that give the inner bounds are available.
+\begin{verbatim}
+>> LBx = predObj.LBx;
+>> UBx = predObj.UBx;
+\end{verbatim}
+
+
+\subsubsection{Sensitivities}
+\label{sec.dclab.sens}
+
+Outer bound computations automatically produce Lagrange multipliers.  These are extracted from the object by
+\begin{verbatim}
+>> ctestMults = ctestObj.upperBndMults;
+>> predMults = predObj.outerBndMults;
+\end{verbatim}
+The prediction multipliers are in a structure with two fields {\tt .lower} for the minimization problem and {\tt .upper} for the maximization problem.  {\tt ctestMults}, {\tt predMults.lower}, and {\tt predMults.upper} are each a struct object with four fields: {\tt .paraml}, {\tt .paramu}, {\tt .expl}, and {\tt .expu} representing the multipliers for the lower and upper bound constraints for the parameter and experiments.
+
+The objects can also convert the Lagrange multipliers to be sensitivities.  These are the partial derivatives of the optimal outer bound objective with respect to the uncertainty bounds.
+\begin{verbatim}
+>> ctestSens = ctestObj.upperBndSens;
+>> predSens = predObj.outerBndSens;
+\end{verbatim}
+These are struct objects with the same form as the multiplier structs.
+
+
+
+
+
+
+
+
+\section{Parameter Optimization}
+\label{sec.dclab.paramoptim}
+
+Parameter optimization is a process of selecting a vector of parameters that minimizes some objective.  The DC toolbox has a parameter optimization algorithm using the NQCQP techniques.
+
+\begin{verbatim}
+>> paramOptimObj = ParameterOptimization(dset);
+\end{verbatim}
+Attempts to find the vector of parameter values $\mathbf{x}$ that solves the problem
+\begin{align*}
+\min_{\mathbf{x}\in\mathcal{H}}\; \sum_{e=1}^m w_e(M_e(\mathbf{x}) - d_e)^2
+\end{align*}
+where $w_e$ are weights that are by default set to $1/u_e$.  This does so in the same general method as consistency and prediction.  It creates polynomial fits where required, constructs an NQCQP, and computes upper and lower bounds on the objective.  These bounds are retrieved via
+\begin{verbatim}
+>> LB = paramOptimObj.costLB;
+>> UB = paramOptimObj.costUB;
+\end{verbatim}
+The optimal parameter vector is retrieved via
+\begin{verbatim}
+>> x = paramOptimObj.bestx;
+\end{verbatim}
+
+A DCOptions can be provided to set various options.
+\begin{verbatim}
+>> paramOptimObj = ParameterOptimization(dset,opts);
+\end{verbatim}
+It is also possible to minimize the 1-norm or the infinity-norm instead of the 2-norm.  This is done with
+\begin{verbatim}
+>> paramOptimObj = ParameterOptimization(dset,opts,norm);
+\end{verbatim}
+where {\tt norm} is either {\tt 'one'}, {\tt 'two'}, or {\tt 'inf'}.
+
+Furthermore, you can specify the weights $w_e$ as a $m$x1 vector ($m$ being the number of ModelAndObservationPairs in the DCDataset).
+\begin{verbatim}
+>> paramOptimObj = ParameterOptimization(dset,opts,norm,weights);
+\end{verbatim}
+
+
+
+
+\section{Automatic Branch and Bound Algorithm}
+\label{sec.dclab.bnb}
+
+A branch and bound algorithm is provided for the computation of the 
+ResponsePrediction, ConsistencyTest, and ParameterOptimization objects.  By 
+default, the computations do not perform any branching, but by setting {\tt 
+'maxBranchBoundIter'} option in the DCOptions object to 2 or greater (see 
+\S\ref{sec.dclab.options}), the branch and bound algorithm will performed 
+automatically.  The goal is to improve the surrogate fits by examining smaller 
+subdomains (making the surrogate a piecewise quadratic) and to reduce the gap 
+between inner and outer bounds.
+
+Even when quadratic surrogates are already created, the branch and bound algorithm can 
+improve the gap between inner and bounds that is due to the convex relation made 
+the outer bounds.
+
+
+\subsection{Piecewise Surrogate Model Binary Tree}
+
+The branch and bound algorithm divides the domain into subdomains, and keeps 
+track of each of the relevant subproblems in a binary tree data structure.  This 
+structure is contained by the PiecewiseSurrogateModelTree object.  The user 
+generally will not see, nor deal with this object, but it is available in the 
+ResponsePrediction, and ConsistencyTest objects.
+
+Each node of the tree represents a subdomain of the prior knowledge parameter 
+domain.  The children of a node represent the partition of the node into 
+subdomains.  Each division is along a single parameter.  Each node includes 
+surrogate fits and optimization bounds.  For a minimization, the optimal value 
+is the minimum of the optimal values over each of the leaves of the tree.
+
+The tree structure provides a history of the algorithms behavior.  It tracks 
+where splits are made, the intermediate surrogate fits, and the optimal values.
+
+
+
+
+
+
+\section{Warm Starting Using Previously Calculated Piecewise Surrogates}
+
+Suppose that you run a consistency analysis, and results show that the 
+consistency measure is bounded in the interval $[-0.23, \; 0.3]$.  More 
+iterations of the branch and bound algorithm should be able to resolve this gap. 
+However, we have potentially spent lots of time generating piecewise surrogate 
+models for each of the ResponseModels in the DCDataset.  However, we do not have 
+to completely restart the algorithm.  The ConsistencyTest constructor can take a 
+ConsistencyTest object as one of its inputs to warm start the branch and bound 
+iteration.
+
+\begin{verbatim}
+>> ctestObj = ConsistencyTest(dset);
+>> opt = DCOptions('maxBranchBoundIter',2);
+>> ctestObjNew = ConsistencyTest(ctestObj,opt);
+\end{verbatim}
+
+This can also be done with the ResponsePrediction objects and 
+ParameterOptimization objects.  Furthermore, the ResponsePrediction constructor can be warm started with a ConsistencyTest object.
+
+\begin{verbatim}
+>> ctestObj = ConsistencyTest(dset); %first verify consistency
+>> predObj = ResponsePrediction(rm0,ctestObj);
+\end{verbatim}
+
+
+
+
+
+
+
+
+\section{Fine Tuning Via User Options}
+\label{sec.dclab.options}
+
+There are many options that a user can set when creating a ConsistencyTest, 
+ResponsePrediction, or ParameterOptimization object.  These are set using the 
+DCOptions object.
+\begin{verbatim}
+>> opts = DCOptions;
+\end{verbatim}
+This creates a DCOptions object with all options set to their default.  If no DCOptions object is provided to the algorithm, this is the default that is generated internally.
+
+Options are set in one of two ways.  The first is to list them during creation as property/value pairs.
+\begin{verbatim}
+>> opts = DCOptions(PROPERTY1,VALUE1,PROPERTY2,VALUE2,...)
+\end{verbatim}
+
+The second way is to use dot-referencing to change the defaults or current options in an already created object.  For example, say we wanted to turn off the {\tt 'display'} option.
+\begin{verbatim}
+>> opts = DCOptions;
+>> opts.display = 'none';
+\end{verbatim}
+
+The following is a list of all options the user can set, including their possible values and meaning.  First a simple option for the display level.
+
+
+\begin{description}
+\item[\tt 'display'] (default={\tt 'iter'}).  Can be 'off', 'final', 'notify', 'iter', 'all', or 'ALL'.  Defines the amount of information printed to the screen during the algorithms.
+\end{description}
+
+The following properties affect the optimization algorithms.
+\begin{description}
+\item[\tt 'omitInnerBound'] (default=false) Can be true or false.  If true, inner bounds are not calculated.  However, if {\tt 'maxBranchBoundIter'}$>$1, then inner bounds are calculated once for the branch and bound algorithm.
+\item[\tt 'omitOuterBound'] (default=false) Can be true or false.  If true, outer bounds are not calculated.
+\item[\tt 'maxBranchBoundIter'] (default=1) Can be any positive integer.  Maximum number of iterations of the branch and bound algorithm.  If reached before tolerances are met, the algorithm exits.  The first iteration equates to the first calculation before any branching.  The second iteration is the calculations after the first branch.  
+\item[\tt 'branchBoundTermTol'] (default=0.02) Can be any positive number.  The branch and bound algorithm will stop if the gap between inner and outer bounds is smaller than this number.
+\item[\tt 'nRestart'] (default=2)  Can be any positive integer.  The number of times the inner bound optimizations are restarted with a new seed.  The result returned is the optimum over all restarts.
+\item[\tt 'tolFun'] (default=1e-5) Can be any positive number.  This is the function tolerance used by the inner bound calculations (passed to {\tt fmincon}).
+\item[\tt 'tolCon'] (default=1e-5) Can be any positive number.  This is the constraint tolerance used by the inner bound calculations (passed to {\tt fmincon}).
+\item[\tt 'sedumiParEps'] (default=1e-9) Can be any positive number.  This is the optimization tolerance used by outer bound calculations (passed to SeDuMi).
+\item[\tt 'constraints'] (default=[1 0 0 0]) A 1x4 array of 1's and 0's.  Defines which transformations to perform the optimization on.  The first column is linXlinY, the second is logXlinY, the third is linXlogY, and the fourth column is logXlogY, where X is the parameters and Y is the model outputs. 1 means include the indicated transformation in the optimization, 0 means exclude them.  See the {\tt 'surfaceTransformation'} option.
+\end{description}
+
+The following properties affect how surrogate fits are made.
+\begin{description}
+\item[\tt 'fitNorm'] (default=2) Can be 2 or inf (the values, not the strings).  This is the norm of residual fitting error that is to be minimized by the fit.  Ultimately, the infinity-norm error is what is added to experiment uncertainties in the optimization.  However, the infinity-norm problem takes longer to solve, and for large problems can run into memory issues.
+\item[\tt 'findIOTransforms'] (default=true) Can be true or false.  If true, uses some function evaluations to determine which parameters should have a $\log_{10}$ transformation for the best surrogate fit.  Similarly, determines if the output should have a $\log_{10}$ transformation.
+\item[\tt 'activeParamSelCutOff'] (default=0.05) Can be any positive number.  A tolerance used for truncating the active parameter list. Setting this value to zero will insure all model parameters are used in the corresponding surrogate model. 100*activeParamSelCutOff roughly corresponds to the percent error introduced by eliminating nonactive parameters. We suggest never exceeding 0.2.
+\item[\tt 'nPntsPerCoeff4ActiveParamSel'] (default=25) Can be any positive integer.  Corresponds to the number of function evaluations per coefficients in the surrogate fit that are computed to determine active parameters.
+\item[\tt 'surfaceFittingMode'] (default={\tt 'iterative'}) Can be {\tt 'iterative'} or {\tt 'oneShot'}.  If {\tt 'iterative'}, then surrogates are fitted using the iterative fitting algorithm (see \S\ref{sec.dclab.iterative}).  If {\tt 'oneShot'}, then surrogates are fit only once per iteration of the branch and bound algorithm.
+\item[\tt 'plotFitProgress'] (default={\tt 'off'}) Can be {\tt 'off'} or {\tt 'on'}.  If on, and \linebreak{\tt 'surfaceFittingMode'} is set to {\tt 'iterative'}, then the difference metric between successive surrogate fits during the iterative fitting algorithm is plotted.
+\item[\tt 'minFitIter'] (default=3) Can be any positive integer less than or equal to the {\tt 'maxFitIter'} option.  The minimum number of iterations of the iterative fitting algorithm to perform if {\tt 'surfaceFittingMode'} is set to {\tt 'iterative'}.
+\item[\tt 'maxFitIter'] (default=7) Can be any positive integer greater than or equal to the {\tt 'minFitIter'} option.  The maximum number of iterations of the iterative fitting algorithm to perform if {\tt 'surfaceFittingMode'} is set to {\tt 'iterative'}.
+\item[\tt 'nSuccessfulFitIter'] (default=2)  Can be any positive integer.  The number of times successive iterations a fit must meet the {\tt 'fitConvergenceTol'} on the error convergence, before it is considered a good fit (if {\tt 'surfaceFittingMode'} is set to {\tt 'iterative'}).
+\item[\tt 'fitConvergenceTol'] (default=0.05) Can be any positive number.  The tolerance that the metric between successive surrogate fits must meet to be considered ``successful'' (if {\tt 'surfaceFittingMode'} is set to {\tt 'iterative'}).
+\item[\tt 'maxPnts4Fit'] (default=Inf) Can be any positive integer.  The maximum number of points that can be used for a surrogate fit.
+\item[\tt 'nPntsPerCoeff4OneShot'] (default=20) Can be any positive integer. When {\tt 'surfaceFittingMode'} is set to {\tt 'oneShot'}, this option determines the number of evaluations to use per coefficients in the surrogate to create the surrogate fit.
+\item[\tt 'subspaceDiscovery'] (default={\tt 'off'})  Can be {\tt 'off'} or {\tt 'on'}.  When {\tt 'on'} and when {\tt 'surfaceFittingMode'} is set to {\tt 'oneShot'}, the surrogate fitting algorithm attempts to find a lower dimensional active subspace upon which the model depends.
+\item[\tt 'subspaceThreshold'] (default=0.1) Can be any positive number.  When \linebreak{\tt 'subspaceDiscovery'} is set to {\tt 'on'}, this option determines the cutoff of the singular values of a gradient matrix of the ResponseModel, thus determining the dimension of the active subspace.  The cutoff is the first singular value $\sigma_i$ that satisfies {\tt opt.subspaceThreshold*}$\sigma_1 > \sigma_i$.
+\item[\tt 'derivRange'] (default=0.01)  Can be any positive number.  When {\tt 'subspaceDiscovery'} is set to {\tt 'on'}, this option determines the spread of evaluations used to approximate gradients of the ResponseModel.  If the parameter domain is normalized to be $[-1,\; 1]^n$, then {\tt opt.derivRange} is the radius of the circle in these coordinates that contains all points used to estimate a gradient.  Larger values may be required for ResponseModels with lots of noise.
+\item[\tt 'surfaceTransformation'] (default={\tt \{'linXlinY'\}})  This is a cell array of strings listing  the different transformations to be used when making a fit.  This must be a 'superset' of the {\tt 'constraints'} option.  Valid values are any cell array containing one or more of the following: {\tt 'linXlinY'}, {\tt 'logXlinY'}, {\tt 'linXlogY'}, and {\tt 'logXlogY'}.
+\item[\tt 'useAllPnts4Fit'] (default=true)  Can be true or false.  After loading saved evaluations, the fitting algorithm will use all points already available to create the fit if this option is set to true.  If set to false, the algorithm will only use the amount it would have computed had there been no saved points.
+\item[\tt 'nLocalValidationSearches'] (default=3)  Can be any nonnegative integer.  When validating a surrogate fit, the algorithm uses {\tt fmincon} to search for the location of the worst error.  This option determines the number of restarts of this procedure.
+\item[\tt 'nPntsPerCoeff4Validation'] (default=250)  Can be any nonnegative integer.  When validating a surrogate fit, the algorithm evaluates the ResponseModel and the surrogate at a set of validation points to look for average and worst case errors.  This option determines the number of evaluations per coefficient in the surrogate for this validation.
+\end{description}
+
+
+
+\section{Examples}
+\label{sec.dclab.examples}
+
+The toolbox comes with several built-in examples.  These are very useful for 
+demonstration of the setup and basic operations associated with the toolbox. They 
+can be found in the ``examples'' subdirectory of the main DC toolbox directory. 
+The following is a list and brief description of each example.  We recommend 
+that you look at the m-file code for each example to see what it is doing and to 
+read the comments before running the example.  It may also be useful to run the 
+examples one cell at a time using MATLAB's ``code cell'' features.
+
+Each example requires that the proper directories are added to the path via the 
+{\tt DCsetup} script.
+
+\begin{description}
+
+\item[General Demos:]  In the ``generalDemos'' subdirectory of the ``examples'' 
+directory, there are 3 examples.  The three demo files ---
+``demo1\_linearModels.m'', ``demo2\_quadraticModels.m'', and 
+``demo3\_generalModel.m'' --- demonstrate creating some toy DCDatasets using each 
+of the three types of ResponseModel, linear, quadratic, and general.  These 
+demos do nothing more than create the DCDataset object.
+
+\item[GRI-Mech 3.0:] In the ``GRI'' subdirectory of the ``examples'' directory is 
+a demo relating the GRI-Mech 3.0 dataset.  This is a dataset of 77 experimental 
+observables, with data and pre-created quadratic surrogate models.  There are 
+102 parameters in the system.  The file ``gri\_mech\_demo.m'' includes a 
+demonstration of consistency testing, sensitivity analysis, and prediction with 
+this system.  Since all model are already quadratic, the analysis is relatively 
+quick; however, it still takes a few minutes due to the large size of the 
+system.
+
+\item[Simple nonlinear dynamic system:] In the ``Prajna'' subdirectory of the 
+``examples'' directory is a modified example presented by Stephen Prajna at the 
+2003 IEEE Conference on Decision and Control.  This example has a nice HTML file 
+in the ``html'' subdirectory of the ``Prajna'' directory called 
+``runPrajnaExample.html'' that can be viewed in a web browser.  The HTML file 
+shows the output and comments from the file ``runPrajnaExample.m.''  This 
+example demonstrates a consistency check on the dataset, and uses multiple 
+features for nonquadratic models as well as evaluation saving.
+
+\item[Mass-Spring-Damper System:] In the ``massSpringDamper'' subdirectory of the 
+``examples'' directory is an example involving the displacement of a mass 
+attached to a spring and damper when a step input force is applied.  The example 
+does not have quadratic models.  There are 3 features examined, and the model 
+evaluations are saved on the hard disk.  We suggest looking not only at the 
+example m-file ''runMSDexample.m,'' but also the model file 
+``msdLinearModel.m.''
+
+\end{description}
+
+
+
+
+\section{Conversion From Version 1.0}
+\label{sec.dclab.conversion}
+
+Conversion from version 1.0 to version 2.0 is pretty simple, albeit, possibly 
+tedious.  The main thing you need to worry about is to make sure to run DCsetup 
+at the beginning of each MATLAB session, and to make sure that if any DC objects 
+are created inside a function to include the command {\tt import DClab.*}. 
+Lastly, Table~\ref{tab.dclab.conversion} shows the object equivalence from version 1.0 to 
+version 2.0.
+
+\begin{table}[!htbp]
+\centering
+\caption{Object conversion table, showing the names of equivalent objects from versions 1.0 and 2.0 of the Data Collaboration toolbox.}
+\label{tab.dclab.conversion}
+\begin{tabular}{|l|l|}\hline
+
+Version 1.0 & Version 2.0 \\ \hline\hline
+
+ParameterAssertion & FreeParameter \\
+ExperimentAssertion & ResponseObservation \\
+ModelAssertion & ResponseModel \\
+DatasetUnit & ModelAndObservationPair\\
+ConsistTest & ConsistencyTest\\
+Prediction & ResponsePrediction\\
+ParameterOptimization & ParameterOptimization\\
+DCOptions & DCOptions \\ \hline\
+\end{tabular}
+\end{table}
+
+All other objects are internal, and the user will most likely not interact with directly.
+
+
+
+
+\section{Troubleshooting, Help, and Feature requests}
+
+There are several common mistakes that are made when using the Data Collaboration toolbox that can lead to errors or incorrect results.  They include
+\begin{itemize}
+\item If your models are flagged for saving evaluations, make sure that all old evaluations are cleared when you make changes to the model file.
+\item Check the units on the parameters in your models and in your FreeParameter objects.  The analysis assumes that the FreeParameters are defined in the same units as the ResponseModels (including transformations).  The analysis also assumes the output of the models is in the same units as the experiment data and uncertainty with the default behavior.  It is possible for the data and uncertainty to defined in terms of the log of the ResponseModel output (see the ResponseObservation command line help).
+\item Each FreeParameter should have a unique name, that is case-dependent.
+\item The FreeParameter array that is given to the DCDataset constructor should include all FreeParameters listed by the {\tt MODELDOMAIN} structures of the ResponseModels.  
+\end{itemize}
+
+Each of the objects and their methods have command line help.  This can be accessed by typing {\tt help} followed by a space and the function name.  For example to read about the DCOptions object and all its properties, type
+\begin{verbatim}
+>> help DCOptions
+\end{verbatim}
+
+If you have any more questions, come across any bugs, have suggestions, or want to suggest features, please visit http://collab-sci.sourceforge.net/ and click on the ``Tracker'' link.
+
+
+%Troubleshooting / Feature request
+
+%Common mistakes:  
+    %not clearing saved points when model changes
+    %check units on parameters
+    %
+    
+\end{document}

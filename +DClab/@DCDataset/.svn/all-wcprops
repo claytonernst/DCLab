@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svnroot/collab-sci/!svn/ver/7/DClabV2/+DClab/@DCDataset
+END
+isFeasible.m
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCDataset/isFeasible.m
+END
+evalResponseModels.m
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCDataset/evalResponseModels.m
+END
+isempty.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCDataset/isempty.m
+END
+evalCMeasObj.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCDataset/evalCMeasObj.m
+END
+DCDataset.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/collab-sci/!svn/ver/7/DClabV2/+DClab/@DCDataset/DCDataset.m
+END
+merge.m
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/collab-sci/!svn/ver/3/DClabV2/+DClab/@DCDataset/merge.m
+END

@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svnroot/collab-sci/!svn/ver/56/DClabV2/examples/GRI
+END
+GRIDataStruct.mat
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/GRIDataStruct.mat
+END
+createGRI.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/createGRI.m
+END
+jpc04ConsistencyTests.m
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/jpc04ConsistencyTests.m
+END
+maxDist.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/maxDist.m
+END
+GRIuncVec.mat
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/GRIuncVec.mat
+END
+GRIspans.mat
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/GRIspans.mat
+END
+GRIuncVec3.mat
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/GRIuncVec3.mat
+END
+loadWeb.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/loadWeb.m
+END
+GRIuncVec211.mat
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/collab-sci/!svn/ver/3/DClabV2/examples/GRI/GRIuncVec211.mat
+END
+gri_mech_demo.m
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svnroot/collab-sci/!svn/ver/56/DClabV2/examples/GRI/gri_mech_demo.m
+END

@@ -1,0 +1,41 @@
+This object is always scalar.
+If the model is described by a dcModel mfile, no transformations are
+incorporated. They are assumed to be linear in both the variable and the response.
+The corresponding fields in the object will be empty to save memory
+
+Algebriac models may be linXlinY, logXlinY, linXlogY, and logXlogY.
+
+ResponseObservations may have uncertainty supplied as interval,
+percent, log10-interval. How we treat this in software depends on the
+available surfaces. However, we should report to the user in a way he
+understands. It gets tougher if additionally there is modeling
+uncertainty. For now, we can prevent combination of things we can't
+deal with. Specifically, if modeling uncertainty is present in a
+dcModel mfile, it can't be used with log10-interval observational
+uncertainty. If the algebraic model is in linY, it works with
+interval.
+
+So for dcModels, modeling uncertainty should also be interval, percent, or
+log10-interval. 
+
+Similar for algebraic models. 
+
+We'll have an option for multipliers wrt observational uncertainty,
+and wrt total uncertainty. The later will not be available if the
+uncertainty types are incompatible.
+
+ModeledResponse(algForm,domain,biasBound)
+
+first input can be matrix (assume linXlinY) or struct with fields
+.algForm, .respTrans, and .varTrans 
+
+third input can be double (assume interval) or struct with fields
+.bound and .type
+
+Needed members of /helperFctns
+issubset
+isLegalDomain
+
+
+
+
