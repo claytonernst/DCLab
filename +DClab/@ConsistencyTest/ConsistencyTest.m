@@ -893,7 +893,9 @@ classdef ConsistencyTest < DClab.DCObject
                 
                 % Remove the constant offset and consider any dimensions with 75% or more
                 % of the largest component.  These are "worthy" of consideration.
-                irank1 = irank1-min(irank1);
+                if ~isscalar(irank1)
+                    irank1 = irank1-min(irank1);
+                end
                 worthy = find(irank1 > 0.75*max(irank1));
                 
                 % The previous heuristic will select one or more dimensions as "worthy".
