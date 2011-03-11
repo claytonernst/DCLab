@@ -1,3 +1,4 @@
+%This comment was added by Wes
 %% Toy Example from Stephen Prajna
 % The following is a modified example presented by Stephen Prajna at the
 % 2003 IEEE Conference on Decision and Control.
